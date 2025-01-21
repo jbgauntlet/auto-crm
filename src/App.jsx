@@ -8,6 +8,8 @@ import LandingPage from './pages/LandingPage';
 import CreateWorkspace from './pages/CreateWorkspace';
 import CreateTicket from './pages/CreateTicket';
 import Ticket from './pages/Ticket';
+import ResetPassword from './pages/auth/ResetPassword';
+import ForgotPassword from './pages/auth/ForgotPassword';
 import './App.css'
 
 function App() {
@@ -65,6 +67,14 @@ function App() {
         <Route 
           path="/ticket/:id" 
           element={session ? <Ticket /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/reset-password" 
+          element={session ? <ResetPassword /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/forgot-password" 
+          element={!session ? <ForgotPassword /> : <Navigate to="/dashboard" />} 
         />
       </Routes>
     </Router>

@@ -48,14 +48,20 @@ function Login() {
 
       if (error) throw error;
 
-      // Get user's role and workspace memberships
+      // Get user's role and password change status
       const { data: userData, error: userError } = await supabase
         .from('users')
-        .select('role')
+        .select('role, password_changed')
         .eq('id', user.id)
         .single();
 
       if (userError) throw userError;
+
+      // If user is not an owner and hasn't changed their password, redirect to reset password
+      if (userData.role !== 'owner' && !userData.password_changed) {
+        navigate('/reset-password');
+        return;
+      }
 
       if (userData.role === 'owner') {
         // Check workspace memberships for owners
@@ -180,6 +186,23 @@ function Login() {
                   ),
                 }}
               />
+
+              {/* Forgot Password Link */}
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                <Button
+                  component={Link}
+                  to="/forgot-password"
+                  sx={{ 
+                    textTransform: 'none',
+                    '&:hover': {
+                      background: 'none',
+                      textDecoration: 'underline',
+                    }
+                  }}
+                >
+                  Forgot Password?
+                </Button>
+              </Box>
 
               {/* Submit Button */}
               <Button

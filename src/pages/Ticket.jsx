@@ -12,6 +12,7 @@ import {
   Button,
   Alert,
   Grid,
+  Paper,
 } from '@mui/material';
 
 const PRIORITY_OPTIONS = [
@@ -21,11 +22,21 @@ const PRIORITY_OPTIONS = [
   { value: 'urgent', label: 'Urgent' },
 ];
 
+const STATUS_OPTIONS = [
+  { value: 'open', label: 'Open' },
+  { value: 'in_progress', label: 'In Progress' },
+  { value: 'closed', label: 'Closed' },
+];
+
 function Ticket() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [ticket, setTicket] = useState(null);
+  const [groups, setGroups] = useState([]);
+  const [groupMembers, setGroupMembers] = useState([]);
   const [workspaceUsers, setWorkspaceUsers] = useState([]);
   const [resolvingTicket, setResolvingTicket] = useState(false);
   
@@ -40,93 +51,167 @@ function Ticket() {
     workspace: '',
     notes: '',
     resolution: '',
+    group_id: '',
   });
 
+  // Add a state for validation
+  const [validationError, setValidationError] = useState(false);
+
   useEffect(() => {
-    const fetchTicketAndUsers = async () => {
-      try {
-        // Fetch ticket details
-        const { data: ticket, error: ticketError } = await supabase
-          .from('tickets')
-          .select(`
-            *,
-            requestor:requestor_id(email),
-            assignee:assignee_id(email),
-            creator:creator_id(email),
-            workspace:workspace_id(name)
-          `)
-          .eq('id', id)
-          .single();
-
-        if (ticketError) throw ticketError;
-
-        // Get workspace users for assignee dropdown
-        const { data: users, error: usersError } = await supabase
-          .from('workspace_memberships')
-          .select(`
-            user_id,
-            users:user_id(
-              id,
-              email
-            )
-          `)
-          .eq('workspace_id', ticket.workspace_id);
-
-        if (usersError) throw usersError;
-
-        setWorkspaceUsers(users.map(membership => ({
-          id: membership.users.id,
-          email: membership.users.email,
-        })));
-
-        setTicketData({
-          subject: ticket.subject,
-          description: ticket.description,
-          priority: ticket.priority,
-          status: ticket.status,
-          requestor: ticket.requestor.email,
-          assignee_id: ticket.assignee_id,
-          creator: ticket.creator.email,
-          workspace: ticket.workspace.name,
-          notes: ticket.notes || '',
-          resolution: ticket.resolution || '',
-        });
-
-      } catch (error) {
-        setError(error.message);
-      }
-    };
-
-    fetchTicketAndUsers();
+    fetchTicket();
   }, [id]);
 
-  const handleInputChange = (e) => {
+  const fetchTicket = async () => {
+    try {
+      // Fetch ticket with related data
+      const { data: ticketData, error: ticketError } = await supabase
+        .from('tickets')
+        .select(`
+          *,
+          requestor:requestor_id(email),
+          assignee:assignee_id(email),
+          creator:creator_id(email),
+          group:group_id(id, name),
+          workspace:workspace_id(id, name)
+        `)
+        .eq('id', id)
+        .single();
+
+      if (ticketError) throw ticketError;
+
+      // Fetch workspace groups
+      const { data: groupsData, error: groupsError } = await supabase
+        .from('groups')
+        .select('*')
+        .eq('workspace_id', ticketData.workspace_id);
+
+      if (groupsError) throw groupsError;
+
+      // Fetch all workspace users
+      const { data: users, error: usersError } = await supabase
+        .from('workspace_memberships')
+        .select(`
+          user_id,
+          users:user_id (
+            id,
+            email,
+            first_name,
+            last_name
+          )
+        `)
+        .eq('workspace_id', ticketData.workspace_id);
+
+      if (usersError) throw usersError;
+
+      setTicket(ticketData);
+      setGroups(groupsData);
+      setWorkspaceUsers(users.map(u => u.users));
+
+      // If ticket has a group, fetch its members
+      if (ticketData.group_id) {
+        await fetchGroupMembers(ticketData.group_id);
+      } else {
+        setGroupMembers(users.map(u => u.users));
+      }
+
+      setTicketData({
+        subject: ticketData.subject,
+        description: ticketData.description,
+        priority: ticketData.priority,
+        status: ticketData.status,
+        requestor: ticketData.requestor.email,
+        assignee_id: ticketData.assignee_id || '',
+        creator: ticketData.creator.email,
+        workspace: ticketData.workspace?.name || '',
+        notes: ticketData.notes || '',
+        resolution: ticketData.resolution || '',
+        group_id: ticketData.group_id || '',
+      });
+
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchGroupMembers = async (groupId) => {
+    try {
+      if (!groupId) {
+        // If no group selected, show all workspace users
+        setGroupMembers(workspaceUsers);
+        return;
+      }
+
+      const { data: members, error } = await supabase
+        .from('group_memberships')
+        .select(`
+          user_id,
+          users:user_id (
+            id,
+            email,
+            first_name,
+            last_name
+          )
+        `)
+        .eq('group_id', groupId);
+
+      if (error) throw error;
+      setGroupMembers(members.map(m => m.users));
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleInputChange = async (e) => {
     const { name, value } = e.target;
+    
+    let updates = {
+      [name]: value,
+    };
+
+    // Reset assignee if group changes
+    if (name === 'group_id') {
+      updates.assignee_id = '';
+      await fetchGroupMembers(value);
+    }
+
     setTicketData(prev => ({
       ...prev,
-      [name]: value
+      ...updates
     }));
     setError(null);
   };
 
   const handleSave = async () => {
-    setLoading(true);
+    // Check if assignee is empty
+    if (!ticketData.assignee_id) {
+      setValidationError(true);
+      setError('Assignee is required');
+      return;
+    }
+
+    setSaving(true);
+    setValidationError(false);
     try {
       const { error: updateError } = await supabase
         .from('tickets')
         .update({
-          assignee_id: ticketData.assignee_id,
+          subject: ticketData.subject,
+          description: ticketData.description,
+          status: ticketData.status,
           priority: ticketData.priority,
-          notes: ticketData.notes,
+          assignee_id: ticketData.assignee_id || null,
+          group_id: ticketData.group_id || null,
         })
         .eq('id', id);
 
       if (updateError) throw updateError;
-      setError(null);
+      navigate('/dashboard');
     } catch (error) {
       setError(error.message);
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -159,6 +244,9 @@ function Ticket() {
       setLoading(false);
     }
   };
+
+  if (loading) return <div>Loading...</div>;
+  if (!ticket) return <div>Ticket not found</div>;
 
   return (
     <Container maxWidth="md">
@@ -235,15 +323,15 @@ function Ticket() {
                   <TextField
                     select
                     fullWidth
-                    label="Assignee"
-                    name="assignee_id"
-                    value={ticketData.assignee_id}
+                    label="Status"
+                    name="status"
+                    value={ticketData.status}
                     onChange={handleInputChange}
                     sx={{ mb: 2 }}
                   >
-                    {workspaceUsers.map((user) => (
-                      <MenuItem key={user.id} value={user.id}>
-                        {user.email}
+                    {STATUS_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
                       </MenuItem>
                     ))}
                   </TextField>
@@ -262,6 +350,47 @@ function Ticket() {
                     {PRIORITY_OPTIONS.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
                         {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    select
+                    fullWidth
+                    label="Group"
+                    name="group_id"
+                    value={ticketData.group_id}
+                    onChange={handleInputChange}
+                    sx={{ mb: 2 }}
+                  >
+                    <MenuItem value="">-</MenuItem>
+                    {groups.map((group) => (
+                      <MenuItem key={group.id} value={group.id}>
+                        {group.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    required
+                    error={validationError && !ticketData.assignee_id}
+                    helperText={validationError && !ticketData.assignee_id ? 'Assignee is required' : ''}
+                    select
+                    fullWidth
+                    label="Assignee"
+                    name="assignee_id"
+                    value={ticketData.assignee_id}
+                    onChange={handleInputChange}
+                    sx={{ mb: 2 }}
+                  >
+                    <MenuItem value="">-</MenuItem>
+                    {groupMembers.map((user) => (
+                      <MenuItem key={user.id} value={user.id}>
+                        {user.email}
                       </MenuItem>
                     ))}
                   </TextField>
@@ -303,9 +432,9 @@ function Ticket() {
                     <Button
                       variant="contained"
                       onClick={handleSave}
-                      disabled={loading}
+                      disabled={saving}
                     >
-                      Save Changes
+                      {saving ? 'Saving...' : 'Save Changes'}
                     </Button>
                     {resolvingTicket ? (
                       <Button
