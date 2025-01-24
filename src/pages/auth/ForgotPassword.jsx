@@ -1,20 +1,15 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import {
-  Container,
-  Card,
-  CardContent,
   Box,
-  Typography,
   TextField,
   Button,
+  Typography,
   Alert,
-  InputAdornment,
+  Link,
+  Paper,
 } from '@mui/material';
-import {
-  Email as EmailIcon,
-} from '@mui/icons-material';
 
 function ForgotPassword() {
   const [loading, setLoading] = useState(false);
@@ -43,40 +38,81 @@ function ForgotPassword() {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Box 
+      sx={{ 
+        minHeight: '100vh',
+        width: '100%',
+        backgroundColor: 'background.default',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <Box
         sx={{
-          minHeight: '100vh',
+          height: '100vh',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          p: 3,
+          mt: '-5%',
+          overflow: 'hidden',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
         }}
       >
-        <Card elevation={8}>
-          <CardContent>
-            <Box sx={{ textAlign: 'center', mb: 3 }}>
-              <Typography variant="h4" component="h1" gutterBottom>
-                Reset Password
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Enter your email to receive reset instructions
-              </Typography>
-            </Box>
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            width: '40%',
+            minWidth: '400px',
+          }}
+        >
+          <Typography
+            variant="h5"
+            component="h1"
+            gutterBottom
+            sx={{
+              color: 'primary.main',
+              fontWeight: 600,
+              textAlign: 'left',
+              mb: 4,
+            }}
+          >
+            Reset Password
+          </Typography>
 
-            {error && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {error}
-              </Alert>
-            )}
+          <Typography 
+            variant="body2" 
+            color="text.secondary"
+            sx={{ mb: 3, textAlign: 'left' }}
+          >
+            Enter your email to receive reset instructions
+          </Typography>
 
-            {success && (
-              <Alert severity="success" sx={{ mb: 2 }}>
-                Check your email for the password reset link
-              </Alert>
-            )}
+          {error && (
+            <Alert 
+              severity="error" 
+              sx={{ mb: 3 }}
+            >
+              {error}
+            </Alert>
+          )}
 
-            <Box component="form" onSubmit={handleSubmit}>
+          {success && (
+            <Alert 
+              severity="success" 
+              sx={{ mb: 3 }}
+            >
+              Check your email for the password reset link
+            </Alert>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
               <TextField
                 required
                 fullWidth
@@ -84,39 +120,48 @@ function ForgotPassword() {
                 label="Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                sx={{ mb: 3 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <EmailIcon color="action" />
-                    </InputAdornment>
-                  ),
-                }}
               />
 
               <Button
                 type="submit"
-                fullWidth
                 variant="contained"
                 disabled={loading || !email}
-                sx={{ mb: 2, height: 46 }}
+                sx={{
+                  height: 48,
+                  backgroundColor: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'primary.dark',
+                  },
+                }}
               >
                 {loading ? 'Sending...' : 'Send Reset Link'}
               </Button>
 
-              <Button
-                component={Link}
-                to="/login"
-                fullWidth
-                sx={{ textTransform: 'none' }}
-              >
-                Back to Login
-              </Button>
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'center',
+                alignItems: 'center',
+                mt: 1 
+              }}>
+                <Link
+                  component={RouterLink}
+                  to="/login"
+                  sx={{
+                    color: 'secondary.main',
+                    textDecoration: 'none',
+                    '&:hover': {
+                      textDecoration: 'underline',
+                    },
+                  }}
+                >
+                  Back to Login
+                </Link>
+              </Box>
             </Box>
-          </CardContent>
-        </Card>
+          </form>
+        </Paper>
       </Box>
-    </Container>
+    </Box>
   );
 }
 

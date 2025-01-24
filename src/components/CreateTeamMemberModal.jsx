@@ -18,22 +18,34 @@ import {
 } from '@mui/material';
 import { supabase } from '../lib/supabaseClient';
 
-const ROLE_OPTIONS = [
-  { value: 'admin', label: 'Admin' },
-  { value: 'agent', label: 'Agent' },
-];
-
-function CreateTeamMemberModal({ open, onClose, workspaceId }) {
+function CreateTeamMemberModal({ open, onClose, workspaceId, userRole }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [groups, setGroups] = useState([]);
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
     email: '',
     role: 'agent',
     selectedGroups: [],
   });
+
+  // Define available roles based on user's role
+  const getRoleOptions = () => {
+    switch (userRole) {
+      case 'owner':
+        return [
+          { value: 'owner', label: 'Owner' },
+          { value: 'admin', label: 'Admin' },
+          { value: 'agent', label: 'Agent' },
+        ];
+      case 'admin':
+        return [
+          { value: 'admin', label: 'Admin' },
+          { value: 'agent', label: 'Agent' },
+        ];
+      default:
+        return [];
+    }
+  };
 
   useEffect(() => {
     if (open && workspaceId) {
@@ -77,74 +89,90 @@ function CreateTeamMemberModal({ open, onClose, workspaceId }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     try {
-      // Generate a random password for the new user
-      const tempPassword = Math.random().toString(36).slice(-8);
-
-      // Create auth user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: tempPassword,
-        options: {
-          data: {
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            role: formData.role,
-          },
-        },
-      });
-
-      if (authError) throw authError;
-
-      // Create user profile
-      const { error: profileError } = await supabase
+      // Check if user exists
+      const { data: existingUser, error: userError } = await supabase
         .from('users')
-        .insert([
-          {
-            id: authData.user.id,
-            email: formData.email,
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            role: formData.role,
-            created_at: new Date().toISOString(),
-          }
-        ]);
+        .select('id')
+        .eq('email', formData.email)
+        .single();
 
-      if (profileError) throw profileError;
+      if (userError && userError.code !== 'PGRST116') { // PGRST116 is "not found" error
+        throw userError;
+      }
 
-      // Create workspace membership
-      const { error: membershipError } = await supabase
+      if (!existingUser) {
+        throw new Error('No user found with this email address. Please make sure the user has signed up first.');
+      }
+
+      // Check if user is already a member of the workspace
+      const { data: existingMembership, error: membershipError } = await supabase
         .from('workspace_memberships')
-        .insert([
-          {
+        .select('id')
+        .eq('workspace_id', workspaceId)
+        .eq('user_id', existingUser.id)
+        .single();
+
+      if (membershipError && membershipError.code !== 'PGRST116') {
+        throw membershipError;
+      }
+
+      if (existingMembership) {
+        throw new Error('This user is already a member of the workspace.');
+      }
+
+      // Check if user already has a pending invite
+      const { data: existingInvite, error: inviteError } = await supabase
+        .from('workspace_invites')
+        .select('id')
+        .eq('workspace_id', workspaceId)
+        .eq('email', formData.email)
+        .single();
+
+      if (inviteError && inviteError.code !== 'PGRST116') {
+        throw inviteError;
+      }
+
+      if (existingInvite) {
+        throw new Error('This user already has a pending invitation to this workspace.');
+      }
+
+      // Create workspace invites for each selected group
+      const invitePromises = formData.selectedGroups.map(groupId => 
+        supabase
+          .from('workspace_invites')
+          .insert([{
+            email: formData.email,
             workspace_id: workspaceId,
-            user_id: authData.user.id,
-            created_at: new Date().toISOString(),
-          }
-        ]);
+            role: formData.role,
+            group_id: groupId,
+          }])
+      );
 
-      if (membershipError) throw membershipError;
+      // If no groups selected, create one invite without group
+      if (formData.selectedGroups.length === 0) {
+        invitePromises.push(
+          supabase
+            .from('workspace_invites')
+            .insert([{
+              email: formData.email,
+              workspace_id: workspaceId,
+              role: formData.role,
+            }])
+        );
+      }
 
-      // Create group memberships
-      if (formData.selectedGroups.length > 0) {
-        const groupMemberships = formData.selectedGroups.map(groupId => ({
-          user_id: authData.user.id,
-          group_id: groupId,
-          created_at: new Date().toISOString(),
-        }));
-
-        const { error: groupError } = await supabase
-          .from('group_memberships')
-          .insert(groupMemberships);
-
-        if (groupError) throw groupError;
+      const results = await Promise.all(invitePromises);
+      const errors = results.filter(result => result.error);
+      
+      if (errors.length > 0) {
+        throw new Error('Failed to create one or more invites');
       }
 
       onClose();
       setFormData({
-        first_name: '',
-        last_name: '',
         email: '',
         role: 'agent',
         selectedGroups: [],
@@ -156,36 +184,31 @@ function CreateTeamMemberModal({ open, onClose, workspaceId }) {
     }
   };
 
+  // Don't render the modal if user is not authorized
+  if (userRole !== 'owner' && userRole !== 'admin') {
+    return null;
+  }
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Add Team Member</DialogTitle>
+      <DialogTitle
+        sx={{
+          color: 'primary.main',
+          fontWeight: 600,
+          pb: 1,
+        }}
+      >
+        Add Team Member
+      </DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert severity="error" sx={{ mb: 3 }}>
               {error}
             </Alert>
           )}
           
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField
-              required
-              fullWidth
-              label="First Name"
-              name="first_name"
-              value={formData.first_name}
-              onChange={handleInputChange}
-            />
-
-            <TextField
-              required
-              fullWidth
-              label="Last Name"
-              name="last_name"
-              value={formData.last_name}
-              onChange={handleInputChange}
-            />
-
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
             <TextField
               required
               fullWidth
@@ -205,7 +228,7 @@ function CreateTeamMemberModal({ open, onClose, workspaceId }) {
               value={formData.role}
               onChange={handleInputChange}
             >
-              {ROLE_OPTIONS.map((option) => (
+              {getRoleOptions().map((option) => (
                 <MenuItem key={option.value} value={option.value}>
                   {option.label}
                 </MenuItem>
@@ -242,8 +265,15 @@ function CreateTeamMemberModal({ open, onClose, workspaceId }) {
             type="submit"
             variant="contained"
             disabled={loading}
+            sx={{
+              height: 48,
+              backgroundColor: 'primary.main',
+              '&:hover': {
+                backgroundColor: 'primary.dark',
+              },
+            }}
           >
-            {loading ? 'Adding...' : 'Add Team Member'}
+            {loading ? 'Sending Invite...' : 'Send Invite'}
           </Button>
         </DialogActions>
       </form>

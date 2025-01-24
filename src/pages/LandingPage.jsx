@@ -1,121 +1,395 @@
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Button,
+  Container,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  Stack,
+  Divider,
+} from '@mui/material';
+import {
+  Speed as SpeedIcon,
+  Group as TeamIcon,
+  Timeline as AnalyticsIcon,
+  AutoGraph as GrowthIcon,
+  Security as SecurityIcon,
+  Api as IntegrationIcon,
+} from '@mui/icons-material';
+import crmDemo from '../assets/crm-template-demo.jpeg';
 
 function LandingPage() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-emerald-800">
-      <div className="relative overflow-hidden">
-        {/* Navigation */}
-        <nav className="relative max-w-7xl mx-auto flex items-center justify-between px-4 py-6 sm:px-6">
-          <div className="flex items-center flex-1">
-            <div className="flex items-center justify-between w-full">
-              <Link to="/" className="text-2xl font-bold text-white">
-                AutoCRM
-              </Link>
-              <div className="hidden md:block">
-                <div className="flex items-center space-x-4">
-                  <Link
-                    to="/login"
-                    className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    Sign in
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    Get Started
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </nav>
+  const navigate = useNavigate();
 
-        {/* Hero Section */}
-        <main className="mt-16 sm:mt-24">
-          <div className="mx-auto max-w-7xl">
-            <div className="lg:grid lg:grid-cols-12 lg:gap-8">
-              <motion.div 
-                className="px-4 sm:px-6 sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left lg:flex lg:items-center"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+  const features = [
+    {
+      icon: <SpeedIcon sx={{ fontSize: 40 }} />,
+      title: 'Fast Implementation',
+      description: 'Get up and running in minutes, not months. Our intuitive setup process makes it easy to start managing customer relationships right away.'
+    },
+    {
+      icon: <TeamIcon sx={{ fontSize: 40 }} />,
+      title: 'Team Collaboration',
+      description: 'Unite your teams with shared inbox, group assignments, and real-time collaboration tools.'
+    },
+    {
+      icon: <AnalyticsIcon sx={{ fontSize: 40 }} />,
+      title: 'Powerful Analytics',
+      description: 'Make data-driven decisions with comprehensive reporting and insights into your customer service performance.'
+    },
+    {
+      icon: <GrowthIcon sx={{ fontSize: 40 }} />,
+      title: 'Scalable Solution',
+      description: 'Grow your business with a platform that scales with you, from startup to enterprise.'
+    },
+    {
+      icon: <SecurityIcon sx={{ fontSize: 40 }} />,
+      title: 'Enterprise Security',
+      description: 'Rest easy with enterprise-grade security features and compliance standards built into every aspect of the platform.'
+    },
+    {
+      icon: <IntegrationIcon sx={{ fontSize: 40 }} />,
+      title: 'Easy Integration',
+      description: 'Connect with your favorite tools and services through our extensive integration marketplace.'
+    }
+  ];
+
+  const stats = [
+    { value: '45%', label: 'Increase in Team Productivity' },
+    { value: '65%', label: 'Faster Response Times' },
+    { value: '89%', label: 'Customer Satisfaction' },
+  ];
+
+  return (
+    <Box>
+      {/* Hero Section */}
+      <Box 
+        sx={{ 
+          background: 'linear-gradient(45deg, #16494D 30%, #008079 90%)',
+          color: 'white',
+          minHeight: '67vh',
+          minWidth: '100vw',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <Container maxWidth="xl">
+          <Grid 
+            container 
+            sx={{ 
+              alignItems: 'center',
+            }}
+          >
+            {/* Left Container - Text and Buttons */}
+            <Grid 
+              item 
+              xs={12} 
+              md={6} 
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
+                p: 4,
+              }}
+            >
+              <Box
+                sx={{
+                  maxWidth: '600px',
+                  mx: 'auto',
+                }}
               >
-                <div>
-                  <h1 className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:text-6xl lg:mt-6 xl:text-6xl">
-                    <span className="block">Customer Support</span>
-                    <span className="block text-emerald-400">Made Simple</span>
-                  </h1>
-                  <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                    Transform your customer support experience with AutoCRM. 
-                    Streamline communications, automate workflows, and deliver 
-                    exceptional service at scale.
-                  </p>
-                  <div className="mt-10 sm:mt-12">
-                    <div className="sm:flex sm:justify-center lg:justify-start">
-                      <div className="rounded-md shadow">
-                        <Link
-                          to="/signup"
-                          className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-emerald-500 hover:bg-emerald-600 md:py-4 md:text-lg md:px-10 transition-colors"
-                        >
-                          Get started for free
-                        </Link>
-                      </div>
-                      <div className="mt-3 sm:mt-0 sm:ml-3">
-                        <Link
-                          to="/login"
-                          className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-emerald-500 bg-gray-800 hover:bg-gray-700 md:py-4 md:text-lg md:px-10 transition-colors"
-                        >
-                          Sign in
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-              <motion.div 
-                className="mt-16 sm:mt-24 lg:mt-0 lg:col-span-6"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
+                <Typography 
+                  variant="h1" 
+                  sx={{ 
+                    fontSize: { xs: '2rem', md: '3rem' },
+                    fontWeight: 700,
+                    mb: 2,
+                    lineHeight: 1.2,
+                  }}
+                >
+                  Customer Service Made Simple with AutoCRM
+                </Typography>
+                <Typography 
+                  variant="h2" 
+                  sx={{ 
+                    fontSize: { xs: '1rem', md: '1.5rem' },
+                    fontWeight: 400,
+                    mb: 6,
+                    opacity: 0.9,
+                    lineHeight: 1.4,
+                  }}
+                >
+                  Streamline your customer support and team collaboration with our all-in-one platform
+                </Typography>
+                <Stack 
+                  direction="row" 
+                  spacing={3} 
+                  justifyContent="center"
+                >
+                  <Button 
+                    variant="contained" 
+                    size="large"
+                    onClick={() => navigate('/signup')}
+                    sx={{
+                      backgroundColor: 'white',
+                      color: 'primary.main',
+                      px: 4,
+                      py: 1.5,
+                      fontSize: '1.1rem',
+                      '&:hover': {
+                        backgroundColor: 'grey.100',
+                      },
+                    }}
+                  >
+                    Get Started Free
+                  </Button>
+                  <Button 
+                    variant="outlined" 
+                    size="large"
+                    onClick={() => navigate('/login')}
+                    sx={{
+                      borderColor: 'white',
+                      borderWidth: 2,
+                      color: 'white',
+                      px: 4,
+                      py: 1.5,
+                      fontSize: '1.1rem',
+                      '&:hover': {
+                        borderColor: 'grey.100',
+                        borderWidth: 2,
+                        backgroundColor: 'rgba(255,255,255,0.1)',
+                      },
+                    }}
+                  >
+                    Sign In
+                  </Button>
+                </Stack>
+              </Box>
+            </Grid>
+
+            {/* Right Container - Platform Preview */}
+            <Grid 
+              item 
+              xs={12} 
+              md={6}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                p: 4,
+              }}
+            >
+              <Box
+                component="img"
+                src={crmDemo}
+                alt="Platform Preview"
+                sx={{
+                  width: '100%',
+                  maxWidth: '700px',
+                  height: 'auto',
+                  borderRadius: 2,
+                  boxShadow: '0 8px 40px rgba(0,0,0,0.2)',
+                  transform: 'perspective(1000px) rotateY(-5deg)',
+                  transition: 'transform 0.3s ease',
+                  '&:hover': {
+                    transform: 'perspective(1000px) rotateY(0deg)',
+                  },
+                }}
+              />
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Stats Section */}
+      <Box sx={{ 
+        py: 8, 
+        backgroundColor: 'primary.light',
+        minHeight: '25vh',
+        display: 'flex',
+        alignItems: 'center',
+      }}>
+        <Container maxWidth="lg">
+          <Grid 
+            container 
+            spacing={8}
+            justifyContent="center"
+            alignItems="center"
+          >
+            {stats.map((stat, index) => (
+              <Grid 
+                item 
+                xs={12} 
+                md={4}
+                key={index}
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                }}
               >
-                <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden">
-                  <div className="px-6 py-8 sm:p-10">
-                    <div className="space-y-6">
-                      <div className="flex items-center space-x-4">
-                        <div className="h-12 w-12 flex items-center justify-center rounded-full bg-emerald-500">
-                          <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                        <div className="text-white">Unified Inbox</div>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <div className="h-12 w-12 flex items-center justify-center rounded-full bg-emerald-500">
-                          <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                          </svg>
-                        </div>
-                        <div className="text-white">Automated Workflows</div>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <div className="h-12 w-12 flex items-center justify-center rounded-full bg-emerald-500">
-                          <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                          </svg>
-                        </div>
-                        <div className="text-white">Real-time Analytics</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </main>
-      </div>
-    </div>
+                <Card 
+                  elevation={0}
+                  sx={{ 
+                    textAlign: 'center',
+                    backgroundColor: 'transparent',
+                    minHeight: '20vh',
+                    width: '350px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <CardContent
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      height: '100%',
+                      py: 3,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mb: 1.5,
+                      }}
+                    >
+                      <Typography 
+                        variant="h3" 
+                        sx={{ 
+                          color: 'primary.main',
+                          fontWeight: 700,
+                          fontSize: { xs: '2.5rem', md: '3rem' },
+                          lineHeight: 1,
+                        }}
+                      >
+                        {stat.value}
+                      </Typography>
+                    </Box>
+                    <Typography 
+                      variant="h6" 
+                      color="text.secondary"
+                      sx={{
+                        fontSize: { xs: '1rem', md: '1.25rem' },
+                        lineHeight: 1.4,
+                        mt: 0,
+                      }}
+                    >
+                      {stat.label}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Features Section */}
+      <Box sx={{ py: 8, backgroundColor: 'white' }}>
+        <Container maxWidth="lg">
+          <Typography 
+            variant="h3" 
+            align="center" 
+            sx={{ 
+              mb: 8,
+              fontWeight: 600,
+              color: 'primary.main'
+            }}
+          >
+            Everything you need to deliver exceptional service
+          </Typography>
+          <Grid container spacing={4}>
+            {features.map((feature, index) => (
+              <Grid item xs={12} md={4} key={index}>
+                <Card 
+                  elevation={0}
+                  sx={{ 
+                    height: '100%',
+                    backgroundColor: 'transparent',
+                    '&:hover': {
+                      backgroundColor: 'grey.50',
+                    },
+                    transition: 'background-color 0.3s'
+                  }}
+                >
+                  <CardContent>
+                    <Box sx={{ color: 'primary.main', mb: 2 }}>
+                      {feature.icon}
+                    </Box>
+                    <Typography 
+                      variant="h5" 
+                      sx={{ 
+                        mb: 2,
+                        fontWeight: 600
+                      }}
+                    >
+                      {feature.title}
+                    </Typography>
+                    <Typography color="text.secondary">
+                      {feature.description}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* CTA Section */}
+      <Box 
+        sx={{ 
+          py: 8,
+          backgroundColor: 'primary.main',
+          color: 'white',
+          textAlign: 'center'
+        }}
+      >
+        <Container maxWidth="md">
+          <Typography 
+            variant="h3" 
+            sx={{ 
+              mb: 3,
+              fontWeight: 600
+            }}
+          >
+            Ready to transform your customer service?
+          </Typography>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              mb: 4,
+              opacity: 0.9
+            }}
+          >
+            Join thousands of teams already delivering exceptional customer experiences
+          </Typography>
+          <Button 
+            variant="contained"
+            size="large"
+            onClick={() => navigate('/signup')}
+            sx={{
+              backgroundColor: 'white',
+              color: 'primary.main',
+              '&:hover': {
+                backgroundColor: 'grey.100',
+              }
+            }}
+          >
+            Get Started Free
+          </Button>
+        </Container>
+      </Box>
+    </Box>
   );
 }
 

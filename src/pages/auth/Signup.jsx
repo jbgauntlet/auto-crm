@@ -1,128 +1,80 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
-import { 
-  Card, 
-  CardContent, 
-  TextField, 
-  Button, 
-  Typography, 
-  Box, 
-  InputAdornment, 
-  IconButton,
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
   Alert,
-  Divider,
-  Container,
-  Stepper,
-  Step,
-  StepLabel,
+  Link,
+  Paper,
 } from '@mui/material';
-import { 
-  Email as EmailIcon,
-  Lock as LockIcon,
-  Person as PersonIcon,
-  Phone as PhoneIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-} from '@mui/icons-material';
-
-const steps = [
-  { field: 'email', label: 'Email', type: 'email', icon: EmailIcon },
-  { field: 'first_name', label: 'First Name', type: 'text', icon: PersonIcon },
-  { field: 'last_name', label: 'Last Name', type: 'text', icon: PersonIcon },
-  { field: 'phone', label: 'Phone Number', type: 'tel', icon: PhoneIcon },
-  { field: 'password', label: 'Password', type: 'password', icon: LockIcon },
-];
 
 function Signup() {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
-    first_name: '',
-    last_name: '',
-    phone: '',
     password: '',
+    firstName: '',
+    lastName: '',
   });
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
     setError(null);
-  };
-
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (currentStep !== steps.length - 1) {
-      handleNext();
-      return;
-    }
-    
     setLoading(true);
+    setError(null);
+    setSuccess(false);
+
     try {
-      // Sign up the user with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      // Sign up the user
+      const { data: { user }, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
           data: {
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            phone: formData.phone,
-            role: 'owner', // Set role in auth metadata
-          },
-        },
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+          }
+        }
       });
 
-      if (authError) throw authError;
+      if (signUpError) throw signUpError;
 
-      // Create user profile in users table
+      // Create user profile
       const { error: profileError } = await supabase
         .from('users')
         .insert([
           {
-            id: authData.user.id,
+            id: user.id,
             email: formData.email,
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            phone: formData.phone,
-            role: 'owner', // Set role in users table
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+          }
         ]);
 
       if (profileError) throw profileError;
-
-      // Check if user has any workspace memberships
-      const { data: memberships, error: membershipError } = await supabase
-        .from('workspace_memberships')
-        .select('*')
-        .eq('user_id', authData.user.id);
-
-      if (membershipError) throw membershipError;
-
-      // Redirect based on workspace membership
-      if (!memberships || memberships.length === 0) {
-        navigate('/create-workspace');
-      } else {
-        navigate('/dashboard');
-      }
-
+      
+      setSuccess(true);
+      // Clear form
+      setFormData({
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+      });
     } catch (error) {
       setError(error.message);
     } finally {
@@ -130,149 +82,172 @@ function Signup() {
     }
   };
 
-  const currentField = steps[currentStep];
-  const IconComponent = currentField.icon;
-
   return (
-    <Container component="main" maxWidth="xs">
+    <Box 
+      sx={{ 
+        minHeight: '100vh',
+        width: '100%',
+        backgroundColor: 'background.default',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <Box
         sx={{
-          minHeight: '100vh',
+          height: '100vh',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          p: 3,
+          mt: '-5%',
+          overflow: 'hidden',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
         }}
       >
-        <Card 
-          elevation={8}
+        <Paper
+          elevation={3}
           sx={{
-            width: '100%',
-            borderRadius: 2,
-            py: 2,
+            p: 4,
+            width: '40%',
+            minWidth: '400px',
           }}
         >
-          <CardContent>
-            <Box 
-              component="form" 
-              onSubmit={handleSubmit}
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 3,
-              }}
+          <Typography
+            variant="h5"
+            component="h1"
+            gutterBottom
+            sx={{
+              color: 'primary.main',
+              fontWeight: 600,
+              textAlign: 'left',
+              mb: 4,
+            }}
+          >
+            Create your AutoCRM Account
+          </Typography>
+
+          {error && (
+            <Alert 
+              severity="error" 
+              sx={{ mb: 3 }}
             >
-              {/* Header */}
-              <Box sx={{ textAlign: 'center', mb: 2 }}>
-                <Typography variant="h4" component="h1" gutterBottom>
-                  Create Account
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Join AutoCRM to get started
-                </Typography>
-              </Box>
+              {error}
+            </Alert>
+          )}
 
-              {/* Stepper */}
-              <Stepper activeStep={currentStep} alternativeLabel>
-                {steps.map((step, index) => (
-                  <Step key={step.field}>
-                    <StepLabel>{step.label}</StepLabel>
-                  </Step>
-                ))}
-              </Stepper>
-
-              {/* Error Alert */}
-              {error && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                  {error}
-                </Alert>
-              )}
-
-              {/* Current Field */}
-              <TextField
-                required
+          {success ? (
+            <Box sx={{ mb: 3 }}>
+              <Alert 
+                severity="success" 
+                sx={{ mb: 2 }}
+              >
+                Account created successfully! Please check your email to confirm your account.
+              </Alert>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                We've sent a confirmation link to your email address. Please click the link to activate your account.
+              </Typography>
+              <Button
+                variant="contained"
                 fullWidth
-                id={currentField.field}
-                label={currentField.label}
-                name={currentField.field}
-                type={currentField.field === 'password' ? (showPassword ? 'text' : 'password') : currentField.type}
-                autoComplete={currentField.field}
-                autoFocus
-                value={formData[currentField.field]}
-                onChange={handleInputChange}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <IconComponent color="action" />
-                    </InputAdornment>
-                  ),
-                  ...(currentField.field === 'password' && {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }),
+                onClick={() => navigate('/login')}
+                sx={{
+                  height: 48,
+                  backgroundColor: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'primary.dark',
+                  },
                 }}
-              />
+              >
+                Go to Login
+              </Button>
+            </Box>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="First Name"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                  />
+                  <TextField
+                    required
+                    fullWidth
+                    label="Last Name"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                  />
+                </Box>
 
-              {/* Navigation Buttons */}
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                <Button
-                  onClick={handleBack}
-                  disabled={currentStep === 0 || loading}
-                  variant="outlined"
-                  sx={{ flex: 1 }}
-                >
-                  Back
-                </Button>
+                <TextField
+                  required
+                  fullWidth
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                />
+
+                <TextField
+                  required
+                  fullWidth
+                  label="Password"
+                  name="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                />
+
                 <Button
                   type="submit"
                   variant="contained"
                   disabled={loading}
-                  sx={{ 
-                    flex: 1,
-                    height: 46,
+                  sx={{
+                    height: 48,
                     backgroundColor: 'primary.main',
                     '&:hover': {
                       backgroundColor: 'primary.dark',
                     },
                   }}
                 >
-                  {loading ? 'Creating...' : currentStep === steps.length - 1 ? 'Create Account' : 'Next'}
+                  {loading ? 'Creating Account...' : 'Create Account'}
                 </Button>
-              </Box>
 
-              {/* Divider */}
-              <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-                <Divider sx={{ flex: 1 }} />
-                <Typography variant="body2" color="text.secondary" sx={{ px: 2 }}>
-                  Already have an account?
-                </Typography>
-                <Divider sx={{ flex: 1 }} />
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  mt: 1 
+                }}>
+                  <Link
+                    component={RouterLink}
+                    to="/login"
+                    sx={{
+                      color: 'secondary.main',
+                      textDecoration: 'none',
+                      '&:hover': {
+                        textDecoration: 'underline',
+                      },
+                    }}
+                  >
+                    Already have an account? Sign in
+                  </Link>
+                </Box>
               </Box>
-
-              {/* Sign In Link */}
-              <Button
-                component={Link}
-                to="/login"
-                fullWidth
-                variant="outlined"
-                sx={{ mt: 1 }}
-              >
-                Sign in
-              </Button>
-            </Box>
-          </CardContent>
-        </Card>
+            </form>
+          )}
+        </Paper>
       </Box>
-    </Container>
+    </Box>
   );
 }
 

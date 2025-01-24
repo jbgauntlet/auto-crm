@@ -28,7 +28,10 @@ function TicketFilterButtons({
               border: 'none',
               p: 0,
               overflow: 'visible',
-              mr: 2
+              mr: 2,
+              '&.Mui-selected': {
+                backgroundColor: 'transparent',
+              }
             } 
           }}
         >
@@ -52,15 +55,26 @@ function TicketFilterButtons({
                   justifyContent: 'center',
                   cursor: 'pointer',
                   bgcolor: currentFilter === value ? 'primary.light' : 'background.paper',
+                  color: currentFilter === value ? 'custom.primaryLightContrast' : 'text.primary',
+                  transition: 'all 0.2s ease-in-out',
                   '&:hover': {
-                    bgcolor: currentFilter === value ? 'primary.light' : 'action.hover',
+                    bgcolor: currentFilter === value ? 'primary.light' : 'custom.lightGray',
+                    transform: 'translateY(-2px)',
                   }
                 }}
               >
-                <Typography variant="h4" component="div">
+                <Typography 
+                  variant="h4" 
+                  component="div"
+                  color={currentFilter === value ? 'custom.primaryLightContrast' : 'primary.main'}
+                >
                   {counts[value]}
                 </Typography>
-                <Typography variant="subtitle2" component="div">
+                <Typography 
+                  variant="subtitle2" 
+                  component="div"
+                  color={currentFilter === value ? 'custom.primaryLightContrast' : 'text.secondary'}
+                >
                   {label}
                 </Typography>
               </Card>
@@ -73,9 +87,18 @@ function TicketFilterButtons({
             <Checkbox
               checked={showClosed}
               onChange={(e) => onShowClosedChange(e.target.checked)}
+              sx={{
+                color: 'primary.main',
+                '&.Mui-checked': {
+                  color: 'primary.main',
+                },
+              }}
             />
           }
           label="Show Closed Tickets"
+          sx={{
+            color: 'text.secondary',
+          }}
         />
       </Box>
     </Box>
