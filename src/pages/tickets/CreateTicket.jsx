@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import {
   Box,
@@ -15,7 +15,20 @@ import {
   Autocomplete,
   Checkbox,
   FormControlLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton,
 } from '@mui/material';
+import {
+  Add as AddIcon,
+  Check as CheckIcon,
+} from '@mui/icons-material';
 import debounce from 'lodash/debounce';
 
 const PRIORITY_OPTIONS = [
@@ -48,6 +61,10 @@ function CreateTicket() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [tagSuggestions, setTagSuggestions] = useState([]);
   const [tagSearchQuery, setTagSearchQuery] = useState('');
+  const [macroDialogOpen, setMacroDialogOpen] = useState(false);
+  const [macros, setMacros] = useState([]);
+  const [selectedMacro, setSelectedMacro] = useState(null);
+  const { workspaceId } = useParams();
 
   const [formData, setFormData] = useState({
     subject: '',
@@ -66,13 +83,7 @@ function CreateTicket() {
       try {
         // Get current user's workspace
         const { data: { user } } = await supabase.auth.getUser();
-        const { data: membership } = await supabase
-          .from('workspace_memberships')
-          .select('workspace_id')
-          .eq('user_id', user.id)
-          .single();
-
-        setCurrentWorkspace(membership.workspace_id);
+        setCurrentWorkspace(workspaceId);
 
         // Fetch workspace users
         const { data: users, error: usersError } = await supabase
@@ -87,7 +98,7 @@ function CreateTicket() {
         const { data: groupsData, error: groupsError } = await supabase
           .from('groups')
           .select('*')
-          .eq('workspace_id', membership.workspace_id);
+          .eq('workspace_id', workspaceId);
 
         if (groupsError) throw groupsError;
         setGroups(groupsData);
@@ -96,7 +107,7 @@ function CreateTicket() {
         const { data: configData, error: configError } = await supabase
           .from('ticket_configs')
           .select('*')
-          .eq('workspace_id', membership.workspace_id)
+          .eq('workspace_id', workspaceId)
           .single();
 
         if (configError) throw configError;
@@ -109,7 +120,7 @@ function CreateTicket() {
             *,
             options:ticket_custom_field_options(*)
           `)
-          .eq('workspace_id', membership.workspace_id)
+          .eq('workspace_id', workspaceId)
           .eq('is_enabled', true);
 
         if (fieldsError) throw fieldsError;
@@ -131,7 +142,7 @@ function CreateTicket() {
           const { data: types, error: typesError } = await supabase
             .from('ticket_type_options')
             .select('*')
-            .eq('workspace_id', membership.workspace_id);
+            .eq('workspace_id', workspaceId);
 
           if (typesError) throw typesError;
           setTypeOptions(types);
@@ -142,7 +153,7 @@ function CreateTicket() {
           const { data: topics, error: topicsError } = await supabase
             .from('ticket_topic_options')
             .select('*')
-            .eq('workspace_id', membership.workspace_id);
+            .eq('workspace_id', workspaceId);
 
           if (topicsError) throw topicsError;
           setTopicOptions(topics);
@@ -453,15 +464,75 @@ function CreateTicket() {
     setSelectedTags(selectedTags.filter(tag => tag.id !== tagId));
   };
 
+  // Add function to fetch macros
+  const fetchMacros = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tickets_macro')
+        .select('*')
+        .eq('workspace_id', workspaceId);
+
+      if (error) throw error;
+      setMacros(data);
+    } catch (error) {
+      console.error('Error fetching macros:', error);
+    }
+  };
+
+  // Add function to apply macro
+  const handleApplyMacro = () => {
+    if (!selectedMacro) return;
+
+    setFormData(prev => ({
+      ...prev,
+      subject: selectedMacro.subject || prev.subject,
+      description: selectedMacro.description || prev.description,
+      priority: selectedMacro.priority || prev.priority,
+      requestor_id: selectedMacro.requestor_id || prev.requestor_id,
+      assignee_id: selectedMacro.assignee_id || prev.assignee_id,
+      group_id: selectedMacro.group_id || prev.group_id,
+      type_id: selectedMacro.type_id || prev.type_id,
+      topic_id: selectedMacro.topic_id || prev.topic_id,
+      custom_fields: {
+        ...prev.custom_fields,
+        ...selectedMacro.custom_fields
+      }
+    }));
+
+    setMacroDialogOpen(false);
+    setSelectedMacro(null);
+  };
+
+  // Add useEffect to fetch macros when dialog opens
+  useEffect(() => {
+    if (macroDialogOpen) {
+      fetchMacros();
+    }
+  }, [macroDialogOpen]);
+
   return (
     <Box sx={{ p: 3, backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
       <Box sx={{ 
         maxWidth: '1200px',
         mx: 'auto',
       }}>
-        <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 3 }}>
-          Create Ticket
-        </Typography>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          mb: 3 
+        }}>
+          <Typography variant="h4" component="h1">
+            Create Ticket
+          </Typography>
+          <Button
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={() => setMacroDialogOpen(true)}
+          >
+            Apply Macro
+          </Button>
+        </Box>
 
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -706,6 +777,60 @@ function CreateTicket() {
             </Grid>
           </Grid>
         </form>
+
+        {/* Add Macro Dialog */}
+        <Dialog
+          open={macroDialogOpen}
+          onClose={() => {
+            setMacroDialogOpen(false);
+            setSelectedMacro(null);
+          }}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>Select Macro</DialogTitle>
+          <DialogContent>
+            <List>
+              {macros.map((macro) => (
+                <ListItem
+                  key={macro.id}
+                  button
+                  selected={selectedMacro?.id === macro.id}
+                  onClick={() => setSelectedMacro(macro)}
+                >
+                  <ListItemText
+                    primary={macro.subject}
+                    secondary={macro.description}
+                  />
+                  {selectedMacro?.id === macro.id && (
+                    <ListItemSecondaryAction>
+                      <IconButton edge="end">
+                        <CheckIcon color="primary" />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  )}
+                </ListItem>
+              ))}
+            </List>
+          </DialogContent>
+          <DialogActions>
+            <Button 
+              onClick={() => {
+                setMacroDialogOpen(false);
+                setSelectedMacro(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleApplyMacro}
+              disabled={!selectedMacro}
+            >
+              Apply
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Box>
   );

@@ -26,6 +26,8 @@ import {
   ExitToApp as LeaveIcon,
   Logout as LogoutIcon,
   Assignment as TicketIcon,
+  AutoFixHigh as MacroIcon,
+  Help as HelpIcon,
 } from '@mui/icons-material';
 
 const DRAWER_WIDTH = 240;
@@ -100,6 +102,11 @@ function WorkspaceSidebar() {
       label: 'Tickets',
       icon: <TicketIcon />,
       path: `/workspaces/${workspaceId}/tickets`,
+    },
+    {
+      label: 'Macros',
+      icon: <MacroIcon />,
+      path: `/workspaces/${workspaceId}/macros`,
     },
     {
       label: 'Team',
@@ -258,6 +265,21 @@ function WorkspaceSidebar() {
         {expanded ? (
           <>
             <ListItemButton
+              onClick={() => window.open('/help', '_blank')}
+              sx={{
+                py: 1.5,
+                '&:hover': {
+                  backgroundColor: 'primary.dark',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'primary.contrastText' }}>
+                <HelpIcon />
+              </ListItemIcon>
+              <ListItemText primary="Help" />
+            </ListItemButton>
+
+            <ListItemButton
               onClick={() => navigate('/workspaces')}
               sx={{
                 py: 1.5,
@@ -289,6 +311,23 @@ function WorkspaceSidebar() {
           </>
         ) : (
           <>
+            <Tooltip title="Help" placement="right">
+              <ListItemButton
+                onClick={() => window.open('/help', '_blank')}
+                sx={{
+                  py: 1.5,
+                  justifyContent: 'center',
+                  '&:hover': {
+                    backgroundColor: 'primary.dark',
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ color: 'primary.contrastText', minWidth: 'auto' }}>
+                  <HelpIcon />
+                </ListItemIcon>
+              </ListItemButton>
+            </Tooltip>
+
             <Tooltip title="Leave Workspace" placement="right">
               <ListItemButton
                 onClick={() => navigate('/workspaces')}

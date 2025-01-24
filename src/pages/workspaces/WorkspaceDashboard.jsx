@@ -76,11 +76,210 @@ function WorkspaceDashboard() {
             workspace_id: workspace.id,
             user_id: user.id,
             created_at: new Date().toISOString(),
-            role: 'Owner'
+            role: 'owner'
           }
         ]);
 
       if (membershipError) throw membershipError;
+
+      // Create ticket configuration
+      const { error: configError } = await supabase
+        .from('ticket_configs')
+        .insert([{
+          workspace_id: workspace.id,
+          has_groups: true,
+          has_type: true,
+          has_topic: true,
+          created_at: new Date().toISOString()
+        }]);
+
+      if (configError) throw configError;
+
+      // Create default groups
+      const defaultGroups = [
+        'Sales', 'Billing', 'Finance', 'Engineering', 'Support', 'Product Management', 'Management'
+      ];
+      const { error: groupsError } = await supabase
+        .from('groups')
+        .insert(defaultGroups.map(name => ({
+          name,
+          workspace_id: workspace.id,
+          created_at: new Date().toISOString()
+        })));
+
+      if (groupsError) throw groupsError;
+
+      // Get the Management group ID
+      const { data: managementGroup, error: managementGroupError } = await supabase
+        .from('groups')
+        .select('id')
+        .eq('workspace_id', workspace.id)
+        .eq('name', 'Management')
+        .single();
+
+      if (managementGroupError) throw managementGroupError;
+
+      // Add user to Management group
+      const { error: groupMembershipError } = await supabase
+        .from('group_memberships')
+        .insert([{
+          group_id: managementGroup.id,
+          user_id: user.id,
+          created_at: new Date().toISOString()
+        }]);
+
+      if (groupMembershipError) throw groupMembershipError;
+
+      // Create default ticket types
+      const defaultTypes = ['Task', 'Bug', 'Question', 'Issue'];
+      const { error: typesError } = await supabase
+        .from('ticket_type_options')
+        .insert(defaultTypes.map(name => ({
+          name,
+          workspace_id: workspace.id,
+          created_at: new Date().toISOString()
+        })));
+      if (typesError) throw typesError;
+
+      // Create default ticket topics
+      const defaultTopics = [
+        'Technical Support',
+        'Product Issue',
+        'Billing Issue',
+        'Customer Inquiry',
+        'Returns',
+        'Refund',
+        'Account Information'
+      ];
+      const { error: topicsError } = await supabase
+        .from('ticket_topic_options')
+        .insert(defaultTopics.map(name => ({
+          name,
+          workspace_id: workspace.id,
+          created_at: new Date().toISOString()
+        })));
+      if (topicsError) throw topicsError;
+
+      // Create default tags
+      const defaultTags = ['FY2025', 'Project_Name'];
+      const { error: tagsError } = await supabase
+        .from('ticket_tags')
+        .insert(defaultTags.map(name => ({
+          name,
+          workspace_id: workspace.id,
+          created_at: new Date().toISOString()
+        })));
+      if (tagsError) throw tagsError;
+
+      // Create default resolution options
+      const defaultResolutions = ['Fixed', 'Can\'t Reproduce', 'Not to be fixed', 'Duplicate'];
+      const { error: resolutionsError } = await supabase
+        .from('ticket_resolution_options')
+        .insert(defaultResolutions.map(name => ({
+          name,
+          workspace_id: workspace.id,
+          created_at: new Date().toISOString()
+        })));
+      if (resolutionsError) throw resolutionsError;
+
+      // Get the Technical Support topic ID
+      const { data: techSupportTopic, error: topicError } = await supabase
+        .from('ticket_topic_options')
+        .select('id')
+        .eq('workspace_id', workspace.id)
+        .eq('name', 'Technical Support')
+        .single();
+
+      if (topicError) throw topicError;
+
+      // Get the Task type ID
+      const { data: taskType, error: typeError } = await supabase
+        .from('ticket_type_options')
+        .select('id')
+        .eq('workspace_id', workspace.id)
+        .eq('name', 'Task')
+        .single();
+
+      if (typeError) throw typeError;
+
+      // Get the FY2025 tag ID
+      const { data: fy2025Tag, error: tagError } = await supabase
+        .from('ticket_tags')
+        .select('id')
+        .eq('workspace_id', workspace.id)
+        .eq('name', 'FY2025')
+        .single();
+
+      if (tagError) throw tagError;
+
+      // Create sample ticket
+      const { data: ticket, error: ticketError } = await supabase
+        .from('tickets')
+        .insert([{
+          subject: 'Sample issue',
+          description: 'This is a sample ticket.',
+          priority: 'urgent',
+          status: 'open',
+          group_id: managementGroup.id,
+          topic_id: techSupportTopic.id,
+          type_id: taskType.id,
+          workspace_id: workspace.id,
+          creator_id: user.id,
+          requestor_id: user.id,
+          assignee_id: user.id,
+          created_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
+
+      if (ticketError) throw ticketError;
+
+      // Create ticket tag membership
+      const { error: ticketTagError } = await supabase
+        .from('ticket_tag_memberships')
+        .insert([{
+          ticket_id: ticket.id,
+          tag_id: fy2025Tag.id
+        }]);
+
+      if (ticketTagError) throw ticketTagError;
+
+      // Create ticket version for the sample ticket
+      const { error: versionError } = await supabase
+        .from('ticket_versions')
+        .insert([{
+          ticket_id: ticket.id,
+          subject: ticket.subject,
+          description: ticket.description,
+          priority: ticket.priority,
+          status: ticket.status,
+          group_id: ticket.group_id,
+          topic_id: ticket.topic_id,
+          type_id: ticket.type_id,
+          workspace_id: ticket.workspace_id,
+          creator_id: ticket.creator_id,
+          requestor_id: ticket.requestor_id,
+          assignee_id: ticket.assignee_id,
+          created_at: ticket.created_at
+        }]);
+
+      if (versionError) throw versionError;
+
+      // Create sample macro
+      const { error: macroError } = await supabase
+        .from('tickets_macro')
+        .insert([{
+          subject: 'Sample macro',
+          description: 'This is a sample macro that can be used as a template.',
+          priority: 'high',
+          group_id: managementGroup.id,
+          topic_id: techSupportTopic.id,
+          type_id: taskType.id,
+          workspace_id: workspace.id,
+          created_at: new Date().toISOString()
+        }]);
+
+      if (macroError) throw macroError;
 
       // Add the new workspace to the list
       setWorkspaces(prev => [...prev, {

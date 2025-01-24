@@ -18,8 +18,9 @@ import {
   AutoGraph as GrowthIcon,
   Security as SecurityIcon,
   Api as IntegrationIcon,
+  Help as HelpIcon,
 } from '@mui/icons-material';
-import crmDemo from '../assets/crm-template-demo.jpeg';
+import crmDemo from '../assets/crm-template-demo.png';
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -341,6 +342,93 @@ function LandingPage() {
                 </Card>
               </Grid>
             ))}
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Help Section */}
+      <Box sx={{ py: 8, backgroundColor: 'primary.light' }}>
+        <Container maxWidth="lg">
+          <Grid container spacing={4} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <Typography 
+                variant="h3" 
+                sx={{ 
+                  mb: 3,
+                  fontWeight: 600,
+                  color: 'primary.main'
+                }}
+              >
+                Need Help?
+              </Typography>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  mb: 4,
+                  color: 'text.secondary',
+                  lineHeight: 1.6
+                }}
+              >
+                Our comprehensive help center provides detailed guides and documentation to help you make the most of AutoCRM. From getting started guides to advanced features, we've got you covered.
+              </Typography>
+              <Button
+                variant="contained"
+                size="large"
+                startIcon={<HelpIcon />}
+                onClick={() => navigate('/help')}
+                sx={{
+                  backgroundColor: 'primary.main',
+                  color: 'white',
+                  '&:hover': {
+                    backgroundColor: 'primary.dark',
+                  }
+                }}
+              >
+                Visit Help Center
+              </Button>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Box sx={{ 
+                p: 4, 
+                backgroundColor: 'white', 
+                borderRadius: 2,
+                boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+              }}>
+                <Typography variant="h6" sx={{ mb: 3, color: 'primary.main', fontWeight: 600 }}>
+                  Popular Help Topics
+                </Typography>
+                <Stack spacing={2}>
+                  {[
+                    { title: 'Getting started with workspaces', section: 'Getting Started' },
+                    { title: 'Managing tickets and priorities', section: 'Ticket Management' },
+                    { title: 'Setting up team collaboration', section: 'Team Collaboration' },
+                    { title: 'Using analytics and reporting', section: 'Analytics and Reporting' },
+                    { title: 'Customizing workspace settings', section: 'Workspace Settings' }
+                  ].map((topic, index) => (
+                    <Box 
+                      key={index}
+                      sx={{ 
+                        p: 2, 
+                        backgroundColor: 'background.paper',
+                        borderRadius: 1,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          backgroundColor: 'primary.light',
+                          borderColor: 'primary.main',
+                        }
+                      }}
+                      onClick={() => navigate(`/help?section=${encodeURIComponent(topic.section)}`)}
+                    >
+                      <Typography variant="body1">
+                        {topic.title}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              </Box>
+            </Grid>
           </Grid>
         </Container>
       </Box>

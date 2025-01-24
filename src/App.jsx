@@ -12,6 +12,7 @@ import Ticket from './pages/tickets/Ticket';
 import TicketList from './pages/tickets/TicketList';
 import CreateTicket from './pages/tickets/CreateTicket';
 import WorkspaceSettings from './pages/workspaces/WorkspaceSettings';
+import Help from './pages/Help';
 import './App.css'
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -23,6 +24,9 @@ import { Box } from '@mui/material';
 import Team from './pages/workspaces/Team';
 import UserProfile from './pages/workspaces/UserProfile';
 import Analytics from './pages/workspaces/Analytics';
+import MacroList from './pages/macros/MacroList';
+import CreateMacro from './pages/macros/CreateMacro';
+import EditMacro from './pages/macros/EditMacro';
 
 function App() {
   const [session, setSession] = useState(null);
@@ -117,6 +121,39 @@ function App() {
               } 
             />
             <Route 
+              path="/workspaces/:workspaceId/macros" 
+              element={session ? 
+                <RouteValidator>
+                  <WorkspaceLayout>
+                    <MacroList />
+                  </WorkspaceLayout>
+                </RouteValidator>
+                : <Navigate to="/login" />
+              } 
+            />
+            <Route 
+              path="/workspaces/:workspaceId/macros/create" 
+              element={session ? 
+                <RouteValidator>
+                  <WorkspaceLayout>
+                    <CreateMacro />
+                  </WorkspaceLayout>
+                </RouteValidator>
+                : <Navigate to="/login" />
+              } 
+            />
+            <Route 
+              path="/workspaces/:workspaceId/macros/:macroId" 
+              element={session ? 
+                <RouteValidator>
+                  <WorkspaceLayout>
+                    <EditMacro />
+                  </WorkspaceLayout>
+                </RouteValidator>
+                : <Navigate to="/login" />
+              } 
+            />
+            <Route 
               path="/workspaces/:workspaceId/workspace-settings/*" 
               element={session ? 
                 <RouteValidator>
@@ -176,6 +213,10 @@ function App() {
             <Route 
               path="/dashboard/*" 
               element={<Navigate to="/workspaces" replace />} 
+            />
+            <Route 
+              path="/help" 
+              element={<Help />} 
             />
             {/* Catch all invalid routes */}
             <Route path="*" element={<NotFound />} />
