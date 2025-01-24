@@ -17,6 +17,7 @@ import {
   ExpandMore as ExpandMoreIcon,
   Search as SearchIcon,
 } from '@mui/icons-material';
+import helpBanner from '../assets/help-banner.jpg';
 
 function Help() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -149,7 +150,7 @@ function Help() {
       {/* Banner Header */}
       <Box
         sx={{
-          background: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/src/assets/help-banner.jpg')`,
+          background: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${helpBanner})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           color: 'white',
