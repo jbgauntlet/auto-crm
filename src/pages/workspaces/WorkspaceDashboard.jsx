@@ -47,6 +47,50 @@
  * - Validates workspace creation
  * - Handles database operation failures
  * - Provides user feedback for all operations
+ * 
+ * POTENTIAL REFACTORING OPPORTUNITIES:
+ * 
+ * 1. Component Extraction:
+ *    - WorkspaceCard: Lines ~550-600 (workspace card rendering)
+ *    - InvitationCard: Lines ~600-700 (invitation card with actions)
+ *    - CreateWorkspaceModal: Lines ~700-750 (workspace creation dialog)
+ *    - DashboardHeader: Lines ~500-550 (title + create button)
+ * 
+ * 2. Custom Hooks:
+ *    - useWorkspaceCreation: Lines ~100-350 (workspace creation logic)
+ *      - Handles all the setup steps (groups, types, topics, etc.)
+ *    - useInvitations: Lines ~350-450 (invitation management)
+ *      - Accept/reject logic
+ *      - Invitation state management
+ *    - useWorkspaces: Lines ~450-500 (workspace fetching and formatting)
+ * 
+ * 3. Service Functions:
+ *    - workspaceSetupService: Lines ~150-300 (default workspace setup)
+ *      - Creating default groups
+ *      - Setting up ticket types
+ *      - Creating sample data
+ *    - invitationService: Lines ~350-400 (invitation processing)
+ *      - Accept invitation logic
+ *      - Reject invitation logic
+ * 
+ * 4. Constants:
+ *    - defaultWorkspaceConfig: Lines ~150-200
+ *      - Default groups
+ *      - Default ticket types
+ *      - Default topics
+ *      - Default tags
+ *      - Default resolutions
+ *    - styleConfigs: Lines ~500-550 (MUI styles)
+ * 
+ * 5. Context/Store:
+ *    - WorkspaceContext
+ *      - Share workspace list
+ *      - Share creation methods
+ *    - InvitationContext
+ *      - Share invitation list
+ *      - Share invitation actions
+ * 
+ * Original file structure below:
  */
 
 import { useState, useEffect } from 'react';
@@ -780,4 +824,6 @@ function WorkspaceDashboard() {
   );
 }
 
-export default WorkspaceDashboard; 
+export default WorkspaceDashboard;
+
+export { WorkspaceDashboard }; 
