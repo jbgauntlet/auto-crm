@@ -1,3 +1,45 @@
+/**
+ * CreateTeamMemberModal Component
+ * 
+ * A modal dialog component for inviting new team members to a workspace.
+ * Handles the complete invitation flow including role assignment and group selection.
+ * 
+ * Features:
+ * - Email-based team member invitation
+ * - Role-based access control (RBAC)
+ * - Multiple group assignments
+ * - Validation for existing users and memberships
+ * - Error handling and user feedback
+ * 
+ * Props:
+ * @param {boolean} open - Controls the visibility of the modal
+ * @param {function} onClose - Callback function to close the modal
+ * @param {string} workspaceId - The ID of the current workspace
+ * @param {string} userRole - The role of the current user ('owner' or 'admin')
+ * 
+ * State Management:
+ * - Tracks form input values (email, role, groups)
+ * - Manages loading and error states
+ * - Maintains list of available groups
+ * 
+ * Database Interactions:
+ * - Checks for existing user accounts
+ * - Validates workspace memberships
+ * - Creates workspace invites
+ * - Manages group associations
+ * 
+ * Security:
+ * - Role-based rendering (only owners and admins can access)
+ * - Validates user permissions for role assignment
+ * - Prevents duplicate invitations
+ * 
+ * Error Handling:
+ * - Validates email format
+ * - Checks for existing memberships
+ * - Handles database errors
+ * - Provides user-friendly error messages
+ */
+
 import { useState, useEffect } from 'react';
 import {
   Dialog,

@@ -1,3 +1,26 @@
+/**
+ * Macro List Component
+ * 
+ * Displays a list of all ticket macros in a workspace using a data grid.
+ * Macros are pre-defined templates for creating tickets with common configurations.
+ * 
+ * Features:
+ * - Real-time data fetching from Supabase
+ * - Data grid with sorting and filtering
+ * - Create new macro button
+ * - Edit and delete actions for each macro
+ * - Relationship data display (requestor, assignee, group, type, topic)
+ * - Loading state management
+ * - Error handling
+ * 
+ * The component provides a central place to manage ticket macros,
+ * making it easier to maintain consistent ticket creation templates.
+ * 
+ * @component
+ * @param {Object} props - Component props (uses route parameters)
+ * @returns {JSX.Element} The rendered macro list
+ */
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
@@ -16,12 +39,18 @@ import {
 } from '@mui/icons-material';
 import { DataGrid } from '@mui/x-data-grid';
 
+/**
+ * MacroList component for managing ticket macros
+ */
 function MacroList() {
   const navigate = useNavigate();
   const { workspaceId } = useParams();
   const [macros, setMacros] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  /**
+   * Fetches macro data from Supabase including related entities
+   */
   useEffect(() => {
     const fetchMacros = async () => {
       try {
@@ -59,6 +88,10 @@ function MacroList() {
     fetchMacros();
   }, [workspaceId]);
 
+  /**
+   * Handles the deletion of a macro
+   * @param {string} id - The ID of the macro to delete
+   */
   const handleDelete = async (id) => {
     try {
       const { error } = await supabase

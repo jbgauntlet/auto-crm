@@ -1,3 +1,39 @@
+/**
+ * RouteValidator Component
+ * 
+ * A higher-order component that validates route parameters against the database
+ * before rendering its children. Provides route-level access control and validation.
+ * 
+ * Features:
+ * - Validates workspace existence and access
+ * - Validates ticket existence within workspace context
+ * - Handles invalid routes with appropriate redirects
+ * - Prevents unauthorized access to resources
+ * 
+ * Props:
+ * @param {ReactNode} children - The components to render if validation passes
+ * @param {string} validationKey - Key to determine validation type (default: 'workspace')
+ * 
+ * State Management:
+ * - Tracks validation status (null, true, false)
+ * - Manages loading state during validation
+ * 
+ * Database Interactions:
+ * - Checks workspace existence
+ * - Validates ticket ownership
+ * - Ensures resource relationships
+ * 
+ * Security:
+ * - Prevents access to non-existent resources
+ * - Maintains proper resource hierarchy
+ * - Handles validation errors gracefully
+ * 
+ * Navigation:
+ * - Redirects to appropriate fallback routes on validation failure
+ * - Maintains workspace context in redirects
+ * - Handles nested resource validation
+ */
+
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';

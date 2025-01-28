@@ -1,3 +1,22 @@
+/**
+ * Help Center Component
+ * 
+ * A comprehensive help and documentation page that provides users with:
+ * - Searchable help articles and FAQs
+ * - Categorized help sections with expandable content
+ * - Quick navigation to specific help topics
+ * - Support for deep linking to specific sections
+ * 
+ * Features:
+ * - Search functionality for help content
+ * - Accordion-based navigation
+ * - URL parameter support for direct section access
+ * - Automatic scrolling to relevant sections
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered help center page
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -24,6 +43,9 @@ function Help() {
   const [selectedSection, setSelectedSection] = useState(null);
   const [searchParams] = useSearchParams();
 
+  /**
+   * Effect hook to handle initial page load and section navigation
+   */
   useEffect(() => {
     window.scrollTo(0, 0);
     

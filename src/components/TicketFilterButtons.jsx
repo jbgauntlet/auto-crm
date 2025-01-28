@@ -1,3 +1,40 @@
+/**
+ * TicketFilterButtons Component
+ * 
+ * A set of interactive filter buttons for the ticket list view.
+ * Provides visual filtering options with count indicators.
+ * 
+ * Features:
+ * - Three main filter categories:
+ *   - YOU: Tickets assigned to current user
+ *   - GROUPS: Tickets in user's groups
+ *   - ALL: All workspace tickets
+ * - Toggle for showing/hiding closed tickets
+ * - Real-time ticket count display
+ * - Visual feedback for active filters
+ * 
+ * Props:
+ * @param {string} currentFilter - Currently active filter ('you', 'groups', 'all')
+ * @param {function} onFilterChange - Callback when filter selection changes
+ * @param {boolean} showClosed - Whether to show closed tickets
+ * @param {function} onShowClosedChange - Callback when closed tickets toggle changes
+ * @param {Object} counts - Ticket counts for each filter category
+ * 
+ * Visual Features:
+ * - Elevated cards for filter options
+ * - Dynamic hover effects
+ * - Clear active state indication
+ * - Consistent spacing and alignment
+ * - Color-coded indicators
+ * 
+ * Styling:
+ * - Material-UI components
+ * - Custom card styling
+ * - Responsive layout
+ * - Smooth transitions
+ * - Accessible color contrast
+ */
+
 import { Box, Card, Typography, ToggleButton, ToggleButtonGroup, FormControlLabel, Checkbox } from '@mui/material';
 
 function TicketFilterButtons({ 

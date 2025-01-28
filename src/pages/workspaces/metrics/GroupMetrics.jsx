@@ -1,3 +1,31 @@
+/**
+ * Group Performance Metrics Component
+ * 
+ * Displays performance metrics for team groups/departments including:
+ * - Ticket volume per group
+ * - Average resolution time per group
+ * - Open vs. closed ticket ratios
+ * - Comparative group performance
+ * 
+ * Features:
+ * - Real-time data fetching from Supabase
+ * - Interactive bar charts using Recharts
+ * - Time range filtering (7d, 30d, 90d, all)
+ * - Group performance comparison
+ * - Workload distribution analysis
+ * - Loading states and error handling
+ * 
+ * The component helps managers understand departmental performance
+ * and identify areas that may need additional resources or process improvements.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {string} props.workspaceId - The ID of the current workspace
+ * @param {string} props.timeRange - Selected time range for filtering data
+ * @param {Function} props.onTimeRangeChange - Callback when time range changes
+ * @returns {JSX.Element} The rendered group metrics dashboard
+ */
+
 import { useState, useEffect } from 'react';
 import { supabase } from '../../../lib/supabaseClient';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -12,6 +40,9 @@ import {
   ToggleButton,
 } from '@mui/material';
 
+/**
+ * GroupMetrics component that displays per-group performance analytics
+ */
 function GroupMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState({
@@ -21,6 +52,10 @@ function GroupMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
     openVsClosed: {}
   });
 
+  /**
+   * Calculates the start date based on the selected time range
+   * @returns {Date|null} The calculated start date or null for all-time
+   */
   const getStartDate = () => {
     const now = new Date();
     switch (timeRange) {
@@ -37,6 +72,10 @@ function GroupMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
     }
   };
 
+  /**
+   * Fetches group performance metrics from Supabase
+   * Includes ticket counts, resolution times, and group data
+   */
   useEffect(() => {
     const fetchMetrics = async () => {
       setLoading(true);
@@ -103,6 +142,10 @@ function GroupMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
     fetchMetrics();
   }, [workspaceId, timeRange]);
 
+  /**
+   * Prepares data for the bar chart visualization
+   * @returns {Array} Formatted data for the bar chart
+   */
   const prepareBarData = () => {
     return metrics.groups.map(group => ({
       name: group.name,

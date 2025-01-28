@@ -1,3 +1,37 @@
+/**
+ * CreateGroupModal Component
+ * 
+ * A modal dialog for creating new groups within a workspace.
+ * Provides a simple interface for group creation with validation.
+ * 
+ * Features:
+ * - Single field form for group name
+ * - Real-time input validation
+ * - Loading state management
+ * - Error handling and display
+ * 
+ * Props:
+ * @param {boolean} open - Controls the visibility of the modal
+ * @param {function} onClose - Callback function to close the modal
+ * @param {string} workspaceId - The ID of the current workspace
+ * 
+ * State Management:
+ * - Tracks group name input
+ * - Manages loading state
+ * - Handles error states
+ * 
+ * Database Interactions:
+ * - Creates new group records
+ * - Associates groups with workspace
+ * - Handles unique constraint violations
+ * 
+ * Validation:
+ * - Requires non-empty group name
+ * - Trims whitespace
+ * - Prevents duplicate submissions
+ * - Provides error feedback
+ */
+
 import { useState } from 'react';
 import {
   Dialog,

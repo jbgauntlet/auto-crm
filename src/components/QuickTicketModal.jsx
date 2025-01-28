@@ -1,3 +1,40 @@
+/**
+ * QuickTicketModal Component
+ * 
+ * A streamlined modal dialog for quickly creating basic tickets.
+ * Provides a simplified interface with essential ticket fields only.
+ * 
+ * Features:
+ * - Minimal form with essential fields:
+ *   - Subject
+ *   - Description
+ *   - Priority selection
+ * - Automatic status setting
+ * - Current user as default requestor
+ * - Real-time form validation
+ * 
+ * Props:
+ * @param {boolean} open - Controls the visibility of the modal
+ * @param {function} onClose - Callback function to close the modal
+ * @param {string} workspaceId - The ID of the current workspace
+ * 
+ * State Management:
+ * - Tracks form input values
+ * - Manages loading state during submission
+ * - Handles form reset after submission
+ * 
+ * Database Interactions:
+ * - Creates new ticket records
+ * - Associates tickets with current user
+ * - Sets default ticket properties
+ * 
+ * UX Features:
+ * - Responsive modal design
+ * - Form validation feedback
+ * - Loading state indication
+ * - Clear success/error handling
+ */
+
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import {

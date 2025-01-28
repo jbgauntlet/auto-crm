@@ -1,3 +1,27 @@
+/**
+ * Reset Password Page Component
+ * 
+ * Handles the password reset process after a user clicks the reset link from their email.
+ * Provides a form interface for users to:
+ * - Enter their new password
+ * - Confirm the new password
+ * - Submit the password change
+ * 
+ * Features:
+ * - Password validation and confirmation
+ * - Password visibility toggle
+ * - Error handling and display
+ * - Loading state during submission
+ * - Secure password update via Supabase
+ * - Responsive design
+ * 
+ * This component is accessed via the reset password link sent to users' email
+ * and allows them to set a new password for their account.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered reset password form
+ */
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
@@ -19,6 +43,9 @@ import {
   VisibilityOff as VisibilityOffIcon,
 } from '@mui/icons-material';
 
+/**
+ * ResetPassword component that manages the password reset process
+ */
 function ResetPassword() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -29,6 +56,10 @@ function ResetPassword() {
     confirmPassword: '',
   });
 
+  /**
+   * Handles form input changes and clears any existing errors
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event
+   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({

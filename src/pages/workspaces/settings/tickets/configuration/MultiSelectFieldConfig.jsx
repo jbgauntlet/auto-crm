@@ -1,6 +1,29 @@
+/**
+ * Multi-Select Field Configuration Component
+ * 
+ * Allows administrators to configure a new multi-select custom field for tickets.
+ * This component handles:
+ * - Setting the field name
+ * - Managing selectable options
+ * - Adding and removing options
+ * - Saving the configuration to the database
+ * 
+ * Features:
+ * - Dynamic option management
+ * - Field name validation
+ * - Error handling
+ * - Loading state management
+ * - Database integration via Supabase
+ * 
+ * Similar to DropdownFieldConfig but allows multiple selections
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered multi-select field configuration form
+ */
+
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '../../../../lib/supabaseClient';
+import { supabase } from '../../../../../lib/supabaseClient';
 import {
   Box,
   Typography,
@@ -16,7 +39,10 @@ import {
   Add as AddIcon,
 } from '@mui/icons-material';
 
-function DropdownFieldConfig() {
+/**
+ * MultiSelectFieldConfig component for creating and configuring multi-select custom fields
+ */
+function MultiSelectFieldConfig() {
   const navigate = useNavigate();
   const { workspaceId } = useParams();
   const [fieldName, setFieldName] = useState('');
@@ -24,10 +50,18 @@ function DropdownFieldConfig() {
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
 
+  /**
+   * Adds a new empty option to the options list
+   */
   const handleAddOption = () => {
     setOptions([...options, { name: '' }]);
   };
 
+  /**
+   * Updates an option's value at the specified index
+   * @param {number} index - The index of the option to update
+   * @param {string} value - The new value for the option
+   */
   const handleOptionChange = (index, value) => {
     const newOptions = [...options];
     newOptions[index] = { name: value };
@@ -55,12 +89,12 @@ function DropdownFieldConfig() {
         throw new Error('At least one option is required');
       }
 
-      // Create the dropdown field
+      // Create the multi-select field
       const { data: field, error: createError } = await supabase
         .from('ticket_custom_fields')
         .insert([{
           name: fieldName.trim(),
-          type: 'dropdown',
+          type: 'multiselect',
           workspace_id: workspaceId
         }])
         .select()
@@ -100,7 +134,7 @@ function DropdownFieldConfig() {
   return (
     <Box>
       <Typography variant="h4" component="h1" sx={{ color: 'primary.main', fontWeight: 600, mb: 4 }}>
-        Create Dropdown Field
+        Create Multi-Select Field
       </Typography>
 
       {error && (
@@ -119,7 +153,7 @@ function DropdownFieldConfig() {
               onChange={(e) => setFieldName(e.target.value)}
               sx={{ mb: 4 }}
               required
-              placeholder="e.g., Priority, Status"
+              placeholder="e.g., Categories, Tags"
             />
 
             <Typography variant="h6" sx={{ mb: 2 }}>
@@ -185,4 +219,4 @@ function DropdownFieldConfig() {
   );
 }
 
-export default DropdownFieldConfig; 
+export default MultiSelectFieldConfig; 

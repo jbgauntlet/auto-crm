@@ -1,3 +1,31 @@
+/**
+ * Individual Performance Metrics Component
+ * 
+ * Displays performance metrics for individual team members including:
+ * - Ticket volume per user
+ * - Average resolution time per user
+ * - Open vs. closed ticket ratios
+ * - Current workload distribution
+ * 
+ * Features:
+ * - Real-time data fetching from Supabase
+ * - Interactive bar charts using Recharts
+ * - Time range filtering (7d, 30d, 90d, all)
+ * - Comparative performance visualization
+ * - Workload analysis
+ * - Loading states and error handling
+ * 
+ * The component helps managers track individual performance and
+ * identify potential workload imbalances or training needs.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {string} props.workspaceId - The ID of the current workspace
+ * @param {string} props.timeRange - Selected time range for filtering data
+ * @param {Function} props.onTimeRangeChange - Callback when time range changes
+ * @returns {JSX.Element} The rendered individual metrics dashboard
+ */
+
 import { useState, useEffect } from 'react';
 import { supabase } from '../../../lib/supabaseClient';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -12,6 +40,9 @@ import {
   ToggleButton,
 } from '@mui/material';
 
+/**
+ * IndividualMetrics component that displays per-user performance analytics
+ */
 function IndividualMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState({
@@ -22,6 +53,10 @@ function IndividualMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
     currentWorkload: {}
   });
 
+  /**
+   * Calculates the start date based on the selected time range
+   * @returns {Date|null} The calculated start date or null for all-time
+   */
   const getStartDate = () => {
     const now = new Date();
     switch (timeRange) {
@@ -38,6 +73,10 @@ function IndividualMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
     }
   };
 
+  /**
+   * Fetches individual performance metrics from Supabase
+   * Includes ticket counts, resolution times, and workload data
+   */
   useEffect(() => {
     const fetchMetrics = async () => {
       setLoading(true);
@@ -120,6 +159,10 @@ function IndividualMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
     fetchMetrics();
   }, [workspaceId, timeRange]);
 
+  /**
+   * Prepares data for the bar chart visualization
+   * @returns {Array} Formatted data for the bar chart
+   */
   const prepareBarData = () => {
     return metrics.users.map(user => ({
       name: `${user.first_name} ${user.last_name}`,

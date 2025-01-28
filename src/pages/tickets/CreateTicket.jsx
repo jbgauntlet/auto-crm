@@ -1,3 +1,56 @@
+/**
+ * CreateTicket Component
+ * 
+ * A comprehensive form interface for creating new support tickets.
+ * This component provides a full-featured ticket creation system with
+ * support for all ticket fields, custom fields, and automation features.
+ * 
+ * Features:
+ * - Dynamic form with real-time validation
+ * - Support for all standard ticket fields:
+ *   - Subject and description
+ *   - Priority levels
+ *   - Status selection
+ *   - Assignee and requestor fields
+ *   - Group assignment
+ *   - Type and topic categorization
+ * - Custom field support with type-specific inputs
+ * - Macro application system
+ * - Tag management
+ * - File attachment handling
+ * - Auto-save functionality
+ * - Smart user suggestions
+ * 
+ * Props (via URL parameters):
+ * @param {string} workspaceId - The ID of the current workspace
+ * 
+ * State Management:
+ * - Manages form data with validation
+ * - Handles file upload states
+ * - Tracks macro application
+ * - Maintains custom field values
+ * - Manages tag selections
+ * 
+ * Database Interactions:
+ * - Creates new ticket records
+ * - Handles file uploads
+ * - Manages tag associations
+ * - Applies macro templates
+ * - Updates related entities
+ * 
+ * Validation:
+ * - Required field checking
+ * - Custom field type validation
+ * - File size and type validation
+ * - User permission validation
+ * 
+ * Integration Features:
+ * - Macro system integration
+ * - Custom field framework
+ * - File storage system
+ * - User management system
+ */
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';

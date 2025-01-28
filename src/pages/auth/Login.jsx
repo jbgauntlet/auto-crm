@@ -1,3 +1,24 @@
+/**
+ * Login Page Component
+ * 
+ * Handles user authentication through email/password login using Supabase.
+ * Provides a form interface for users to:
+ * - Enter their email and password
+ * - Submit credentials for authentication
+ * - Navigate to password reset
+ * - Navigate to signup
+ * 
+ * Features:
+ * - Form validation
+ * - Error handling and display
+ * - Loading state management
+ * - Secure authentication via Supabase
+ * - Responsive design
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered login form
+ */
+
 import { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
@@ -11,6 +32,9 @@ import {
   Paper,
 } from '@mui/material';
 
+/**
+ * Login component that manages user authentication
+ */
 function Login() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -20,6 +44,10 @@ function Login() {
     password: '',
   });
 
+  /**
+   * Handles form input changes and clears any existing errors
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event
+   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({

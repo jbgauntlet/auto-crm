@@ -1,3 +1,12 @@
+/**
+ * Main application component that handles routing and authentication state.
+ * This component serves as the root of the application, managing:
+ * - Authentication state and session management via Supabase
+ * - Application-wide routing configuration
+ * - Theme provider setup with Material-UI
+ * - Protected route handling with RouteValidator
+ */
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabaseClient';
@@ -28,6 +37,10 @@ import MacroList from './pages/macros/MacroList';
 import CreateMacro from './pages/macros/CreateMacro';
 import EditMacro from './pages/macros/EditMacro';
 
+/**
+ * App Component
+ * @returns {JSX.Element} The root application component with routing and authentication setup
+ */
 function App() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);

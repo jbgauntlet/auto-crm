@@ -1,3 +1,97 @@
+/**
+ * WorkspaceHome Component
+ * 
+ * The main workspace interface that combines ticket management and team overview.
+ * Provides a comprehensive dashboard for workspace activities and management.
+ * 
+ * Features:
+ * - Ticket Management:
+ *   - Real-time ticket list with advanced filtering
+ *   - Quick ticket creation
+ *   - Status and priority visualization
+ *   - Ticket counts by category
+ * 
+ * - Team Management:
+ *   - Team member list with role indicators
+ *   - Group management interface
+ *   - Member invitation system
+ *   - Role-based access control
+ * 
+ * - Group Features:
+ *   - Group creation and management
+ *   - Member assignment to groups
+ *   - Group-based filtering
+ *   - Visual group indicators
+ * 
+ * Data Display:
+ * - Tickets Grid:
+ *   - Subject and description
+ *   - Status with color coding
+ *   - Priority levels
+ *   - Assignee and requestor info
+ *   - Creation timestamps
+ * 
+ * - Team Grid:
+ *   - Member details
+ *   - Role assignments
+ *   - Group memberships
+ *   - Join dates
+ * 
+ * State Management:
+ * - Tracks ticket and user data
+ * - Manages multiple modal states
+ * - Handles filter selections
+ * - Maintains loading states
+ * 
+ * Security Features:
+ * - Role-based action permissions
+ * - Secure data fetching
+ * - Protected management functions
+ * 
+ * Database Interactions:
+ * - Real-time ticket updates
+ * - User data synchronization
+ * - Group membership management
+ * - Workspace configuration
+ * 
+ * UI/UX Features:
+ * - Material-UI DataGrid integration
+ * - Modal interfaces for actions
+ * - Color-coded status indicators
+ * - Responsive layout design
+ * - Interactive filtering system
+ * 
+ * POTENTIAL REFACTORING OPPORTUNITIES:
+ * 
+ * 1. Component Extraction:
+ *    - TicketGrid: Lines ~50-180 (columns definition + grid rendering)
+ *    - TeamGrid: Lines ~180-300 (userColumns definition + grid rendering)
+ *    - WorkspaceHeader: Lines ~600-650 (title + action buttons)
+ *    - TeamSection: Lines ~650-750 (team members section)
+ * 
+ * 2. Custom Hooks:
+ *    - useTickets: Lines ~350-450 (ticket fetching, filtering, counting)
+ *    - useTeamMembers: Lines ~450-500 (team member fetching and formatting)
+ *    - useWorkspaceGroups: Lines ~500-550 (group management)
+ *    - useWorkspaceRole: Lines ~300-350 (role checking and permissions)
+ * 
+ * 3. Utility Functions:
+ *    - formatTicketData: Lines ~450-500 (ticket data formatting)
+ *    - formatUserData: Lines ~300-350 (user data formatting)
+ *    - getTicketCounts: Lines ~250-300 (ticket counting logic)
+ * 
+ * 4. Constants:
+ *    - colorMappings: Lines ~100-150 (status, priority, role colors)
+ *    - gridConfigs: Lines ~50-100 (column definitions)
+ * 
+ * 5. Context Providers:
+ *    - WorkspaceContext: For sharing workspace data
+ *    - TeamContext: For sharing team member data
+ *    - TicketContext: For sharing ticket data
+ * 
+ * Original file structure below:
+ */
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';

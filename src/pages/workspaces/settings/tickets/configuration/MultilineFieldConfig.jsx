@@ -1,6 +1,28 @@
+/**
+ * Multiline Text Field Configuration Component
+ * 
+ * Allows administrators to configure a new multiline text custom field for tickets.
+ * This component handles:
+ * - Setting the field name
+ * - Configuring a multiline text input field
+ * - Saving the configuration to the database
+ * 
+ * Features:
+ * - Field name validation
+ * - Error handling
+ * - Loading state management
+ * - Database integration via Supabase
+ * 
+ * Creates a text area field that allows users to input multiple lines of text
+ * when filling out tickets.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered multiline field configuration form
+ */
+
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '../../../../lib/supabaseClient';
+import { supabase } from '../../../../../lib/supabaseClient';
 import {
   Box,
   Typography,
@@ -11,13 +33,20 @@ import {
   Alert,
 } from '@mui/material';
 
-function TextFieldConfig() {
+/**
+ * MultilineFieldConfig component for creating and configuring multiline text custom fields
+ */
+function MultilineFieldConfig() {
   const navigate = useNavigate();
   const { workspaceId } = useParams();
   const [fieldName, setFieldName] = useState('');
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
 
+  /**
+   * Handles the creation of a new multiline text field
+   * Validates input and saves to the database
+   */
   const handleCreate = async () => {
     try {
       setSaving(true);
@@ -28,12 +57,12 @@ function TextFieldConfig() {
         throw new Error('Field name is required');
       }
 
-      // Create the text field
+      // Create the multiline text field
       const { error: createError } = await supabase
         .from('ticket_custom_fields')
         .insert([{
           name: fieldName.trim(),
-          type: 'text',
+          type: 'multiline',
           workspace_id: workspaceId
         }]);
 
@@ -52,7 +81,7 @@ function TextFieldConfig() {
   return (
     <Box>
       <Typography variant="h4" component="h1" sx={{ color: 'primary.main', fontWeight: 600, mb: 4 }}>
-        Create Text Field
+        Create Multiline Text Field
       </Typography>
 
       {error && (
@@ -71,7 +100,7 @@ function TextFieldConfig() {
               onChange={(e) => setFieldName(e.target.value)}
               sx={{ mb: 4 }}
               required
-              placeholder="e.g., Reference Number, Customer ID"
+              placeholder="e.g., Description, Additional Notes"
             />
 
             <Box sx={{ display: 'flex', gap: 2 }}>
@@ -103,4 +132,4 @@ function TextFieldConfig() {
   );
 }
 
-export default TextFieldConfig; 
+export default MultilineFieldConfig; 

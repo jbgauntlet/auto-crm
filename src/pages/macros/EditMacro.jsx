@@ -1,3 +1,37 @@
+/**
+ * EditMacro Component
+ * 
+ * A comprehensive form interface for editing existing ticket macros in the workspace.
+ * This component provides a full-featured editor for modifying macro templates,
+ * including all ticket fields, custom fields, and automation settings.
+ * 
+ * Features:
+ * - Loads and displays existing macro data for editing
+ * - Dynamic custom field support with type-specific input controls
+ * - User selection for requestor and assignee fields
+ * - Group assignment capabilities
+ * - Type and topic selection
+ * - Priority level configuration
+ * - Real-time validation and error handling
+ * - Automatic data persistence to Supabase
+ * 
+ * Props (via URL parameters):
+ * @param {string} workspaceId - The ID of the current workspace
+ * @param {string} macroId - The ID of the macro being edited
+ * 
+ * State Management:
+ * - Manages loading states for initial data fetch
+ * - Handles form validation and submission states
+ * - Maintains separate states for different field types
+ * - Tracks changes to custom fields independently
+ * 
+ * Database Interactions:
+ * - Fetches existing macro data from macros table
+ * - Loads workspace configuration including custom fields
+ * - Updates macro records in Supabase
+ * - Manages related entities (users, groups, types, topics)
+ */
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';

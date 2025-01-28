@@ -1,3 +1,56 @@
+/**
+ * Analytics Component
+ * 
+ * A comprehensive analytics dashboard for workspace ticket data visualization and analysis.
+ * Provides multiple views for different aspects of ticket management performance.
+ * 
+ * Features:
+ * - Multiple Analysis Categories:
+ *   - Ticket Volume & Status: Track ticket flow and status distribution
+ *   - Group Performance: Analyze team efficiency and workload
+ *   - Individual Performance: Monitor agent productivity
+ *   - Custom Field Analytics: Analyze custom field usage patterns
+ *   - Resolution Analysis: Track resolution trends and efficiency
+ * 
+ * - Interactive Interface:
+ *   - Category selection sidebar
+ *   - Time range filtering
+ *   - Dynamic content rendering
+ *   - Visual feedback for selected states
+ * 
+ * Layout Structure:
+ * - Sidebar:
+ *   - Category navigation
+ *   - Visual indicators for current selection
+ *   - Consistent iconography
+ * - Main Content Area:
+ *   - Category-specific metrics
+ *   - Time range controls
+ *   - Data visualizations
+ * 
+ * Props:
+ * None - Uses React Router for workspace context
+ * 
+ * State Management:
+ * - Tracks selected category
+ * - Manages time range selection
+ * - Handles metric component rendering
+ * 
+ * Component Integration:
+ * - Integrates with specialized metric components:
+ *   - VolumeMetrics
+ *   - GroupMetrics
+ *   - IndividualMetrics
+ *   - CustomFieldMetrics
+ *   - ResolutionMetrics
+ * 
+ * Styling:
+ * - Material-UI components and theming
+ * - Responsive layout design
+ * - Consistent visual hierarchy
+ * - Clear selection states
+ */
+
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {

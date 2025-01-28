@@ -1,3 +1,29 @@
+/**
+ * Resolution Metrics Component
+ * 
+ * Displays comprehensive ticket resolution analytics including:
+ * - Distribution of resolution types (pie chart)
+ * - Average resolution time by ticket type (bar chart)
+ * - First contact resolution rates
+ * - Resolution trends over time
+ * 
+ * Features:
+ * - Real-time data fetching from Supabase
+ * - Multiple chart types (Nivo pie charts, Recharts bar charts)
+ * - Time range filtering (7d, 30d, 90d, all)
+ * - Interactive charts with tooltips
+ * - Resolution type breakdown
+ * - Performance metrics and trends
+ * - Loading states and error handling
+ * 
+ * @component
+ * @param {Object} props
+ * @param {string} props.workspaceId - The ID of the current workspace
+ * @param {string} props.timeRange - Selected time range for filtering data
+ * @param {Function} props.onTimeRangeChange - Callback when time range changes
+ * @returns {JSX.Element} The rendered resolution metrics dashboard
+ */
+
 import { useState, useEffect } from 'react';
 import { supabase } from '../../../lib/supabaseClient';
 import { ResponsivePie } from '@nivo/pie';
@@ -13,6 +39,9 @@ import {
   ToggleButton,
 } from '@mui/material';
 
+/**
+ * ResolutionMetrics component that displays ticket resolution analytics
+ */
 function ResolutionMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState({
@@ -26,6 +55,10 @@ function ResolutionMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
     }
   });
 
+  /**
+   * Calculates the start date based on the selected time range
+   * @returns {Date|null} The calculated start date or null for all-time
+   */
   const getStartDate = () => {
     const now = new Date();
     switch (timeRange) {
@@ -42,6 +75,10 @@ function ResolutionMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
     }
   };
 
+  /**
+   * Fetches resolution metrics data from Supabase
+   * Includes resolution types, average times, and trends
+   */
   useEffect(() => {
     const fetchMetrics = async () => {
       setLoading(true);

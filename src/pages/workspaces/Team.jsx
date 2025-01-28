@@ -1,3 +1,62 @@
+/**
+ * Team Component
+ * 
+ * A comprehensive team directory interface displaying all workspace members
+ * and their associated roles and group memberships.
+ * 
+ * Features:
+ * - Member Directory:
+ *   - Complete member listing
+ *   - Role visualization
+ *   - Group membership display
+ *   - Search functionality
+ * 
+ * - Data Display:
+ *   - Member names and emails
+ *   - Role indicators with color coding
+ *   - Group membership chips
+ *   - Interactive table rows
+ * 
+ * - Search Capabilities:
+ *   - Real-time filtering
+ *   - Name and email search
+ *   - Empty state handling
+ * 
+ * Data Management:
+ * - Member Data:
+ *   - Basic user information
+ *   - Workspace roles
+ *   - Group associations
+ * 
+ * - Group Data:
+ *   - Group names and IDs
+ *   - Workspace association
+ *   - Membership tracking
+ * 
+ * Database Interactions:
+ * - Fetches workspace memberships
+ * - Retrieves user details
+ * - Loads group memberships
+ * - Combines related data
+ * 
+ * UI Features:
+ * - Material-UI table layout
+ * - Role-based chip colors
+ * - Interactive row highlighting
+ * - Responsive design
+ * - Loading states
+ * - Error handling
+ * 
+ * Navigation:
+ * - Click-through to member details
+ * - Workspace context preservation
+ * 
+ * Error Handling:
+ * - Loading state indication
+ * - Error message display
+ * - Graceful data fallbacks
+ */
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';

@@ -1,3 +1,42 @@
+/**
+ * WorkspaceSidebar Component
+ * 
+ * A collapsible sidebar navigation component for workspace-level navigation.
+ * Provides access to all major workspace features and displays workspace context.
+ * 
+ * Features:
+ * - Collapsible/expandable sidebar with smooth animations
+ * - Workspace branding with auto-generated color avatar
+ * - Role-based menu items (different for owners vs regular users)
+ * - Visual indication of current route
+ * - Tooltips for collapsed state
+ * - Quick access to common workspace features:
+ *   - Dashboard
+ *   - Tickets
+ *   - Macros
+ *   - Team Management
+ *   - Analytics
+ *   - Workspace Settings (owner only)
+ * 
+ * Props:
+ * None - Uses React Router for navigation and context
+ * 
+ * State Management:
+ * - Tracks sidebar expanded/collapsed state
+ * - Maintains current workspace information
+ * - Manages user role and permissions
+ * 
+ * Context Requirements:
+ * - Must be used within a React Router context
+ * - Requires workspace ID from URL parameters
+ * - Needs authenticated Supabase client
+ * 
+ * Styling:
+ * - Uses Material-UI's theme system
+ * - Custom color generation for workspace avatars
+ * - Responsive design with smooth transitions
+ */
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';

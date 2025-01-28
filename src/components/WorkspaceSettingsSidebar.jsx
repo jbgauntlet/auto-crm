@@ -1,3 +1,42 @@
+/**
+ * WorkspaceSettingsSidebar Component
+ * 
+ * A navigation sidebar specifically for workspace settings and configuration.
+ * Provides hierarchical navigation through various workspace configuration options.
+ * 
+ * Features:
+ * - Hierarchical menu structure with collapsible sections
+ * - Visual indication of current route
+ * - Grouped settings categories:
+ *   - General workspace settings
+ *   - Team management
+ *   - Group configuration
+ *   - Ticket system settings:
+ *     - Custom fields
+ *     - Topics
+ *     - Types
+ *     - Tags
+ *     - Resolutions
+ *     - General configuration
+ * 
+ * Props:
+ * None - Uses React Router for navigation and context
+ * 
+ * State Management:
+ * - Tracks expanded/collapsed state of ticket settings section
+ * - Maintains current route selection
+ * 
+ * Context Requirements:
+ * - Must be used within a React Router context
+ * - Requires workspace ID from URL parameters
+ * 
+ * Styling:
+ * - Uses Material-UI's theme system
+ * - Custom styling for selected states
+ * - Consistent iconography for different setting types
+ * - Nested menu indentation
+ */
+
 import { useState } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import {

@@ -1,3 +1,54 @@
+/**
+ * WorkspaceDashboard Component
+ * 
+ * A comprehensive dashboard interface for managing workspaces and workspace invitations.
+ * Serves as the main entry point for workspace management and creation.
+ * 
+ * Features:
+ * - Workspace Management:
+ *   - Display of all accessible workspaces
+ *   - Creation of new workspaces with default configurations
+ *   - Quick access to workspace features
+ *   - Workspace status indicators
+ * 
+ * - Invitation Handling:
+ *   - Display of pending workspace invitations
+ *   - Accept/reject invitation functionality
+ *   - Collapsible invitations section
+ * 
+ * - Workspace Creation:
+ *   - Modal interface for new workspace creation
+ *   - Automatic setup of:
+ *     - Default groups (Sales, Billing, Finance, etc.)
+ *     - Ticket configuration
+ *     - Default ticket types and topics
+ *     - Sample ticket for demonstration
+ *     - Tag system initialization
+ *     - Resolution options
+ * 
+ * State Management:
+ * - Tracks workspace list and loading states
+ * - Manages invitation list and processing states
+ * - Handles modal visibility and form data
+ * - Error state management
+ * 
+ * Database Interactions:
+ * - Fetches user's workspaces and invitations
+ * - Creates new workspaces with complete configuration
+ * - Manages workspace memberships
+ * - Handles invitation responses
+ * 
+ * Security:
+ * - Role-based workspace creation
+ * - Secure invitation handling
+ * - Proper ownership assignment
+ * 
+ * Error Handling:
+ * - Validates workspace creation
+ * - Handles database operation failures
+ * - Provides user feedback for all operations
+ */
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';

@@ -1,6 +1,28 @@
+/**
+ * Single Line Text Field Configuration Component
+ * 
+ * Allows administrators to configure a new single-line text custom field for tickets.
+ * This component handles:
+ * - Setting the field name
+ * - Configuring a single-line text input field
+ * - Saving the configuration to the database
+ * 
+ * Features:
+ * - Field name validation
+ * - Error handling
+ * - Loading state management
+ * - Database integration via Supabase
+ * 
+ * Creates a standard text input field that allows users to input a single line
+ * of text when filling out tickets.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered text field configuration form
+ */
+
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '../../../../lib/supabaseClient';
+import { supabase } from '../../../../../lib/supabaseClient';
 import {
   Box,
   Typography,
@@ -11,13 +33,20 @@ import {
   Alert,
 } from '@mui/material';
 
-function CheckboxFieldConfig() {
+/**
+ * TextFieldConfig component for creating and configuring single-line text custom fields
+ */
+function TextFieldConfig() {
   const navigate = useNavigate();
   const { workspaceId } = useParams();
   const [fieldName, setFieldName] = useState('');
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
 
+  /**
+   * Handles the creation of a new text field
+   * Validates input and saves to the database
+   */
   const handleCreate = async () => {
     try {
       setSaving(true);
@@ -28,12 +57,12 @@ function CheckboxFieldConfig() {
         throw new Error('Field name is required');
       }
 
-      // Create the checkbox field
+      // Create the text field
       const { error: createError } = await supabase
         .from('ticket_custom_fields')
         .insert([{
           name: fieldName.trim(),
-          type: 'checkbox',
+          type: 'text',
           workspace_id: workspaceId
         }]);
 
@@ -52,7 +81,7 @@ function CheckboxFieldConfig() {
   return (
     <Box>
       <Typography variant="h4" component="h1" sx={{ color: 'primary.main', fontWeight: 600, mb: 4 }}>
-        Create Checkbox Field
+        Create Text Field
       </Typography>
 
       {error && (
@@ -71,7 +100,7 @@ function CheckboxFieldConfig() {
               onChange={(e) => setFieldName(e.target.value)}
               sx={{ mb: 4 }}
               required
-              placeholder="e.g., Is Urgent, Requires Follow-up"
+              placeholder="e.g., Reference Number, Customer ID"
             />
 
             <Box sx={{ display: 'flex', gap: 2 }}>
@@ -103,4 +132,4 @@ function CheckboxFieldConfig() {
   );
 }
 
-export default CheckboxFieldConfig; 
+export default TextFieldConfig; 

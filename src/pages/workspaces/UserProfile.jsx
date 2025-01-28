@@ -1,3 +1,59 @@
+/**
+ * UserProfile Component
+ * 
+ * A detailed profile view for workspace team members, displaying their
+ * personal information, role, and group memberships.
+ * 
+ * Features:
+ * - Profile Information:
+ *   - User avatar with initials
+ *   - Full name display
+ *   - Role indicator with color coding
+ *   - Contact information
+ *   - Group memberships
+ * 
+ * - Data Display:
+ *   - Contact Section:
+ *     - Email address
+ *     - Phone number (if available)
+ *   - Role Visualization:
+ *     - Color-coded role chip
+ *     - Role-specific styling
+ *   - Group Section:
+ *     - Group membership chips
+ *     - Empty state handling
+ * 
+ * Data Management:
+ * - User Data:
+ *   - Basic profile information
+ *   - Contact details
+ *   - Workspace role
+ * 
+ * - Group Data:
+ *   - Group memberships
+ *   - Workspace context
+ *   - Membership tracking
+ * 
+ * Database Interactions:
+ * - Fetches user details
+ * - Retrieves workspace membership
+ * - Loads group associations
+ * - Combines profile data
+ * 
+ * UI Features:
+ * - Responsive grid layout
+ * - Material-UI components
+ * - Avatar generation
+ * - Loading states
+ * - Error handling
+ * 
+ * Error States:
+ * - Loading indication
+ * - User not found handling
+ * - Error message display
+ * - Graceful fallbacks
+ */
+
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';

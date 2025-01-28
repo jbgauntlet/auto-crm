@@ -1,3 +1,26 @@
+/**
+ * Volume Metrics Component
+ * 
+ * Displays ticket volume analytics through interactive pie charts showing:
+ * - Distribution of tickets by status (open/closed)
+ * - Distribution of tickets by priority (urgent/high/normal/low)
+ * 
+ * Features:
+ * - Real-time data fetching from Supabase
+ * - Interactive pie charts using Nivo
+ * - Time range filtering (24h, 7d, 30d, 90d)
+ * - Color-coded status and priority segments
+ * - Hover interactions with detailed statistics
+ * - Loading states and error handling
+ * 
+ * @component
+ * @param {Object} props
+ * @param {string} props.workspaceId - The ID of the current workspace
+ * @param {string} props.timeRange - Selected time range for filtering data
+ * @param {Function} props.onTimeRangeChange - Callback when time range changes
+ * @returns {JSX.Element} The rendered volume metrics dashboard
+ */
+
 import { useState, useEffect } from 'react';
 import { supabase } from '../../../lib/supabaseClient';
 import { ResponsivePie } from '@nivo/pie';
@@ -12,11 +35,13 @@ import {
   ToggleButton,
 } from '@mui/material';
 
+// Color configuration for status pie chart
 const statusColors = {
   open: '#008079',
   closed: '#68868B',
 };
 
+// Color configuration for priority pie chart
 const priorityColors = {
   urgent: '#C72A1C',
   high: '#2073B7',
@@ -24,6 +49,10 @@ const priorityColors = {
   low: '#008079',
 };
 
+/**
+ * Common configuration for pie charts
+ * Defines margins, animations, labels, and legend settings
+ */
 const pieChartCommonProps = {
   margin: { top: 40, right: 80, bottom: 40, left: 80 },
   animate: true,
@@ -57,8 +86,12 @@ const pieChartCommonProps = {
   ]
 };
 
+/**
+ * VolumeMetrics component that displays ticket volume analytics
+ */
 function VolumeMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [metrics, setMetrics] = useState({
     total: 0,
     byStatus: {
@@ -75,6 +108,10 @@ function VolumeMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
     resolvedLastWeek: 0
   });
 
+  /**
+   * Calculates the start date based on the selected time range
+   * @returns {Date} The calculated start date
+   */
   const getStartDate = () => {
     const now = new Date();
     switch (timeRange) {
@@ -91,6 +128,9 @@ function VolumeMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
     }
   };
 
+  /**
+   * Fetches metrics data from Supabase based on the time range
+   */
   useEffect(() => {
     const fetchMetrics = async () => {
       setLoading(true);
@@ -154,6 +194,10 @@ function VolumeMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
     fetchMetrics();
   }, [workspaceId, timeRange]);
 
+  /**
+   * Prepares data for the status pie chart
+   * @returns {Array} Formatted data for the status pie chart
+   */
   const prepareStatusData = () => {
     return Object.entries(metrics.byStatus).map(([status, value]) => ({
       id: status,
@@ -163,6 +207,10 @@ function VolumeMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
     }));
   };
 
+  /**
+   * Prepares data for the priority pie chart
+   * @returns {Array} Formatted data for the priority pie chart
+   */
   const preparePriorityData = () => {
     return Object.entries(metrics.byPriority).map(([priority, value]) => ({
       id: priority,

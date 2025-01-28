@@ -1,3 +1,37 @@
+/**
+ * Material-UI Theme Configuration
+ * 
+ * A custom theme configuration for the application using Material-UI's theming system.
+ * Provides consistent styling and branding across all components.
+ * 
+ * Features:
+ * - Typography:
+ *   - System font stack for optimal rendering
+ *   - Consistent heading weights
+ *   - Custom button text styling
+ * 
+ * - Color Palette:
+ *   - Primary: Deep teal (#16494D)
+ *   - Secondary: Blue (#2073B7)
+ *   - Success: Forest green (#164D23)
+ *   - Error: Red (#C72A1C)
+ *   - Custom colors for specific use cases
+ * 
+ * - Component Customization:
+ *   - Buttons: No text transform, square corners
+ *   - Cards: Consistent shadow and square corners
+ *   - Data Grid: Custom header styling
+ *   - Text Fields: Square corners, weighted labels
+ *   - Alerts: Square corners
+ *   - Typography: Custom letter spacing
+ * 
+ * - Global Styles:
+ *   - Reset margins and padding
+ *   - Controlled viewport behavior
+ *   - Base background color
+ *   - Overflow handling
+ */
+
 import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({

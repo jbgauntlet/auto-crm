@@ -1,3 +1,24 @@
+/**
+ * Signup Page Component
+ * 
+ * Handles new user registration through Supabase authentication.
+ * Provides a form interface for users to:
+ * - Enter their email, password, and personal details
+ * - Create a new account
+ * - Navigate to login if they already have an account
+ * 
+ * Features:
+ * - Form validation for all fields
+ * - Error handling and display
+ * - Success state management
+ * - Loading state during submission
+ * - Secure account creation via Supabase
+ * - Responsive design
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered signup form
+ */
+
 import { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
@@ -11,6 +32,9 @@ import {
   Paper,
 } from '@mui/material';
 
+/**
+ * Signup component that manages new user registration
+ */
 function Signup() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -23,6 +47,10 @@ function Signup() {
     lastName: '',
   });
 
+  /**
+   * Handles form input changes and clears any existing errors
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event
+   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({

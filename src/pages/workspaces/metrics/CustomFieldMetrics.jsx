@@ -1,3 +1,32 @@
+/**
+ * Custom Field Usage Metrics Component
+ * 
+ * Displays analytics for custom field usage across tickets including:
+ * - Field usage frequency
+ * - Value distribution for each field
+ * - Usage trends over time
+ * - Field completion rates
+ * 
+ * Features:
+ * - Real-time data fetching from Supabase
+ * - Multiple visualization types (bar charts, tables)
+ * - Time range filtering (7d, 30d, 90d, all)
+ * - Field type specific analytics
+ * - Usage pattern analysis
+ * - Loading states and error handling
+ * 
+ * The component helps administrators understand how custom fields
+ * are being used and which fields might need to be adjusted or
+ * removed based on usage patterns.
+ * 
+ * @component
+ * @param {Object} props
+ * @param {string} props.workspaceId - The ID of the current workspace
+ * @param {string} props.timeRange - Selected time range for filtering data
+ * @param {Function} props.onTimeRangeChange - Callback when time range changes
+ * @returns {JSX.Element} The rendered custom field metrics dashboard
+ */
+
 import { useState, useEffect } from 'react';
 import { supabase } from '../../../lib/supabaseClient';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -18,6 +47,9 @@ import {
   TableRow,
 } from '@mui/material';
 
+/**
+ * CustomFieldMetrics component that displays custom field usage analytics
+ */
 function CustomFieldMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState({
@@ -27,6 +59,10 @@ function CustomFieldMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
     trends: {}
   });
 
+  /**
+   * Calculates the start date based on the selected time range
+   * @returns {Date|null} The calculated start date or null for all-time
+   */
   const getStartDate = () => {
     const now = new Date();
     switch (timeRange) {
@@ -43,6 +79,10 @@ function CustomFieldMetrics({ workspaceId, timeRange, onTimeRangeChange }) {
     }
   };
 
+  /**
+   * Fetches custom field usage metrics from Supabase
+   * Includes field configurations, usage data, and trends
+   */
   useEffect(() => {
     const fetchMetrics = async () => {
       setLoading(true);

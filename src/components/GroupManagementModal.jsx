@@ -1,3 +1,42 @@
+/**
+ * GroupManagementModal Component
+ * 
+ * A modal dialog for managing a user's group memberships within a workspace.
+ * Provides an interface for adding and removing users from multiple groups.
+ * 
+ * Features:
+ * - Checkbox-based group selection
+ * - Batch processing of group membership changes
+ * - Real-time change tracking
+ * - Optimistic updates with error handling
+ * - Change persistence tracking
+ * 
+ * Props:
+ * @param {boolean} open - Controls the visibility of the modal
+ * @param {function} onClose - Callback function to close the modal
+ * @param {Object} user - User object containing id, first_name, last_name
+ * @param {string} workspaceId - The ID of the current workspace
+ * @param {function} onUpdate - Callback function to refresh parent component
+ * 
+ * State Management:
+ * - Tracks selected groups
+ * - Maintains initial group state
+ * - Manages loading and error states
+ * - Tracks unsaved changes
+ * 
+ * Database Interactions:
+ * - Fetches workspace groups
+ * - Retrieves user's current group memberships
+ * - Handles batch updates to group_memberships table
+ * - Manages membership deletions and insertions
+ * 
+ * Error Handling:
+ * - Validates group operations
+ * - Provides user feedback
+ * - Handles database errors
+ * - Maintains data consistency
+ */
+
 import { useState, useEffect } from 'react';
 import {
   Dialog,

@@ -1,8 +1,29 @@
+/**
+ * 404 Not Found Page Component
+ * 
+ * A user-friendly error page displayed when:
+ * - The requested route doesn't exist
+ * - The user doesn't have permission to access the route
+ * - Invalid URLs are accessed
+ * 
+ * Features:
+ * - Clear error message with icon
+ * - "Go Back" button using browser history
+ * - Responsive layout
+ * - Consistent styling with app theme
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered 404 error page
+ */
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Button } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
+/**
+ * NotFound component that provides a user-friendly 404 error page
+ */
 function NotFound() {
   const navigate = useNavigate();
 

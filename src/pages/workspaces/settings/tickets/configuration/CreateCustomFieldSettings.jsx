@@ -1,3 +1,22 @@
+/**
+ * Custom Field Type Selection Component
+ * 
+ * A component that allows workspace administrators to select and create new custom fields.
+ * Provides a grid of available field types with visual representations and descriptions.
+ * 
+ * Available field types:
+ * - Dropdown: Single selection from predefined options
+ * - Checkbox: Boolean true/false field
+ * - Text: Single line text input
+ * - Multiline: Multiple line text input
+ * - Multi-select: Multiple selection from predefined options
+ * 
+ * Each field type selection navigates to its specific configuration component.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered field type selection interface
+ */
+
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Box,
@@ -14,6 +33,9 @@ import {
   List as MultiSelectIcon,
 } from '@mui/icons-material';
 
+/**
+ * CreateCustomFieldSettings component for selecting custom field types
+ */
 function CreateCustomFieldSettings() {
   const navigate = useNavigate();
   const { workspaceId } = useParams();

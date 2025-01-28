@@ -1,3 +1,51 @@
+/**
+ * Ticket Component
+ * 
+ * A comprehensive interface for viewing and managing individual tickets.
+ * This component serves as the primary ticket management interface, providing
+ * detailed information, editing capabilities, and communication features.
+ * 
+ * Features:
+ * - Real-time ticket data display and updates
+ * - Ticket status management (Open, In Progress, Closed)
+ * - Priority level controls
+ * - Assignee and requestor management
+ * - Group assignment capabilities
+ * - Type and topic categorization
+ * - Custom field support with dynamic rendering
+ * - Internal notes and communication system
+ * - File attachment handling
+ * - Ticket resolution workflow
+ * - Change history tracking
+ * 
+ * Props (via URL parameters):
+ * @param {string} workspaceId - The ID of the current workspace
+ * @param {string} ticketId - The ID of the ticket being viewed/edited
+ * 
+ * State Management:
+ * - Manages loading states for data fetching
+ * - Tracks edit mode and form states
+ * - Maintains note/comment thread state
+ * - Handles file upload states
+ * - Manages custom field values
+ * 
+ * Database Interactions:
+ * - Real-time ticket data synchronization
+ * - Note/comment creation and updates
+ * - File attachment management
+ * - Status and field updates
+ * - Change history logging
+ * 
+ * UI Components:
+ * - Status indicators with color coding
+ * - Priority level visualization
+ * - User avatars and selection
+ * - Rich text editing for notes
+ * - Custom field type-specific inputs
+ * - File upload interface
+ * - Change history timeline
+ */
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';

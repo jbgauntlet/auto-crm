@@ -1,3 +1,17 @@
+/**
+ * Landing Page Component
+ * 
+ * The main landing/marketing page for Auto-CRM that showcases the application's
+ * key features and benefits. It includes:
+ * - Hero section with main value proposition
+ * - Feature highlights with icons and descriptions
+ * - Call-to-action buttons for signup/login
+ * - Product screenshots and demos
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered landing page
+ */
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -22,6 +36,9 @@ import {
 } from '@mui/icons-material';
 import crmDemo from '../assets/crm-template-demo.png';
 
+/**
+ * Main landing page component that serves as the entry point for new users
+ */
 function LandingPage() {
   const navigate = useNavigate();
 
@@ -113,7 +130,7 @@ function LandingPage() {
                     lineHeight: 1.2,
                   }}
                 >
-                  Customer Service Made Simple with AutoCRM
+                  Issue Tracking Made Simple with AutoCRM
                 </Typography>
                 <Typography 
                   variant="h2" 

@@ -1,3 +1,27 @@
+/**
+ * Forgot Password Page Component
+ * 
+ * Handles password reset requests through Supabase authentication.
+ * Provides a form interface for users to:
+ * - Enter their email address
+ * - Request a password reset link
+ * - Navigate back to login
+ * 
+ * Features:
+ * - Email validation
+ * - Error handling and display
+ * - Success state management
+ * - Loading state during submission
+ * - Secure password reset via Supabase
+ * - Responsive design
+ * 
+ * The component sends a password reset link to the provided email address
+ * and redirects users to the reset password page after clicking the link.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered forgot password form
+ */
+
 import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
@@ -11,12 +35,19 @@ import {
   Paper,
 } from '@mui/material';
 
+/**
+ * ForgotPassword component that manages password reset requests
+ */
 function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
+  /**
+   * Handles form submission and triggers the password reset email
+   * @param {React.FormEvent<HTMLFormElement>} e - The form submission event
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);

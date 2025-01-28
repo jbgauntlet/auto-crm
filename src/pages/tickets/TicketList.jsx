@@ -1,3 +1,41 @@
+/**
+ * TicketList Component
+ * 
+ * A comprehensive interface for displaying and managing tickets within a workspace.
+ * This component provides a data grid view of all tickets with advanced filtering,
+ * sorting, and navigation capabilities.
+ * 
+ * Features:
+ * - Real-time ticket data display using Material-UI DataGrid
+ * - Advanced filtering options (All tickets, My tickets, Group tickets)
+ * - Toggle for showing/hiding closed tickets
+ * - Visual status indicators with color coding
+ * - Priority-based highlighting
+ * - Quick navigation to ticket details
+ * - Create new ticket functionality
+ * - Real-time ticket count tracking
+ * 
+ * Props (via URL parameters):
+ * @param {string} workspaceId - The ID of the current workspace
+ * 
+ * State Management:
+ * - Manages loading states for data fetching
+ * - Tracks active filter selections
+ * - Maintains ticket visibility preferences
+ * - Updates ticket counts in real-time
+ * 
+ * Database Interactions:
+ * - Fetches ticket data from Supabase with real-time updates
+ * - Maintains separate counters for different ticket categories
+ * - Handles ticket status and assignment changes
+ * 
+ * Visual Features:
+ * - Color-coded status indicators
+ * - Priority-based highlighting
+ * - Responsive grid layout
+ * - Interactive filtering buttons
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';

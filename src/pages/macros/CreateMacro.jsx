@@ -1,3 +1,30 @@
+/**
+ * Create Macro Component
+ * 
+ * Provides a form interface for creating new ticket macros.
+ * Macros serve as templates for quickly creating tickets with predefined values.
+ * 
+ * Features:
+ * - Form fields for all ticket properties
+ * - Dynamic custom field support
+ * - User selection for requestor and assignee
+ * - Group, type, and topic selection
+ * - Priority setting
+ * - Real-time validation
+ * - Error handling
+ * - Loading states
+ * 
+ * The component fetches all necessary configuration data including:
+ * - Custom fields configuration
+ * - Available groups
+ * - Workspace users
+ * - Ticket types and topics
+ * 
+ * @component
+ * @param {Object} props - Component props (uses route parameters)
+ * @returns {JSX.Element} The rendered macro creation form
+ */
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
@@ -15,6 +42,9 @@ import {
   Checkbox,
 } from '@mui/material';
 
+/**
+ * CreateMacro component for creating new ticket macros
+ */
 function CreateMacro() {
   const navigate = useNavigate();
   const { workspaceId } = useParams();
@@ -28,6 +58,7 @@ function CreateMacro() {
   const [topicOptions, setTopicOptions] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
 
+  // Initial form state with default values
   const [formData, setFormData] = useState({
     subject: '',
     description: '',
@@ -40,6 +71,9 @@ function CreateMacro() {
     custom_fields: {}
   });
 
+  /**
+   * Priority options for the ticket macro
+   */
   const PRIORITY_OPTIONS = [
     { value: 'low', label: 'Low' },
     { value: 'normal', label: 'Normal' },
@@ -47,6 +81,10 @@ function CreateMacro() {
     { value: 'urgent', label: 'Urgent' }
   ];
 
+  /**
+   * Fetches all necessary configuration data from Supabase
+   * Includes custom fields, groups, users, types, and topics
+   */
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -142,6 +180,10 @@ function CreateMacro() {
     fetchData();
   }, [workspaceId]);
 
+  /**
+   * Handles changes to standard form inputs
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event
+   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
@@ -162,6 +204,11 @@ function CreateMacro() {
     }
   };
 
+  /**
+   * Handles changes to custom field values
+   * @param {string} fieldId - The ID of the custom field
+   * @param {any} value - The new value for the custom field
+   */
   const handleCustomFieldChange = (fieldId, value) => {
     setFormData(prev => ({
       ...prev,
@@ -172,6 +219,10 @@ function CreateMacro() {
     }));
   };
 
+  /**
+   * Handles form submission and macro creation
+   * @param {React.FormEvent<HTMLFormElement>} e - The form submission event
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -203,6 +254,11 @@ function CreateMacro() {
     }
   };
 
+  /**
+   * Renders a custom field based on its type
+   * @param {Object} field - The custom field configuration
+   * @returns {JSX.Element} The rendered custom field input
+   */
   const renderCustomField = (field) => {
     switch (field.type) {
       case 'checkbox':

@@ -1,6 +1,28 @@
+/**
+ * Checkbox Field Configuration Component
+ * 
+ * Allows administrators to configure a new checkbox custom field for tickets.
+ * This component handles:
+ * - Setting the field name
+ * - Configuring a boolean checkbox field
+ * - Saving the configuration to the database
+ * 
+ * Features:
+ * - Field name validation
+ * - Error handling
+ * - Loading state management
+ * - Database integration via Supabase
+ * 
+ * Creates a checkbox field that allows users to toggle between true/false
+ * values when filling out tickets.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered checkbox field configuration form
+ */
+
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '../../../../lib/supabaseClient';
+import { supabase } from '../../../../../lib/supabaseClient';
 import {
   Box,
   Typography,
@@ -11,13 +33,20 @@ import {
   Alert,
 } from '@mui/material';
 
-function MultilineFieldConfig() {
+/**
+ * CheckboxFieldConfig component for creating and configuring checkbox custom fields
+ */
+function CheckboxFieldConfig() {
   const navigate = useNavigate();
   const { workspaceId } = useParams();
   const [fieldName, setFieldName] = useState('');
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
 
+  /**
+   * Handles the creation of a new checkbox field
+   * Validates input and saves to the database
+   */
   const handleCreate = async () => {
     try {
       setSaving(true);
@@ -28,12 +57,12 @@ function MultilineFieldConfig() {
         throw new Error('Field name is required');
       }
 
-      // Create the multiline text field
+      // Create the checkbox field
       const { error: createError } = await supabase
         .from('ticket_custom_fields')
         .insert([{
           name: fieldName.trim(),
-          type: 'multiline',
+          type: 'checkbox',
           workspace_id: workspaceId
         }]);
 
@@ -52,7 +81,7 @@ function MultilineFieldConfig() {
   return (
     <Box>
       <Typography variant="h4" component="h1" sx={{ color: 'primary.main', fontWeight: 600, mb: 4 }}>
-        Create Multiline Text Field
+        Create Checkbox Field
       </Typography>
 
       {error && (
@@ -71,7 +100,7 @@ function MultilineFieldConfig() {
               onChange={(e) => setFieldName(e.target.value)}
               sx={{ mb: 4 }}
               required
-              placeholder="e.g., Description, Additional Notes"
+              placeholder="e.g., Is Urgent, Requires Follow-up"
             />
 
             <Box sx={{ display: 'flex', gap: 2 }}>
@@ -103,4 +132,4 @@ function MultilineFieldConfig() {
   );
 }
 
-export default MultilineFieldConfig; 
+export default CheckboxFieldConfig; 
