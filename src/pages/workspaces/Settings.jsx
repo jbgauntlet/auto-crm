@@ -1,7 +1,7 @@
 /**
- * WorkspaceSettings Component
+ * Settings Component
  * 
- * A comprehensive settings management interface for workspace configuration.
+ * Workspace settings interface for managing workspace configuration and preferences.
  * Provides multiple specialized settings sections with role-based access control.
  * 
  * Main Features:
@@ -180,7 +180,7 @@ const getFieldTypeIcon = (type) => {
   }
 };
 
-function WorkspaceSettings() {
+function Settings() {
   const navigate = useNavigate();
   const { workspaceId } = useParams();
   const [workspace, setWorkspace] = useState(null);
@@ -263,4 +263,4 @@ function WorkspaceSettings() {
   );
 }
 
-export default WorkspaceSettings; 
+export default Settings; 

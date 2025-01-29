@@ -76,6 +76,7 @@ import {
   Alert,
   Paper,
 } from '@mui/material';
+import TeamMemberManagement from '../../components/TeamMemberManagement';
 
 function Team() {
   const navigate = useNavigate();
@@ -172,9 +173,16 @@ function Team() {
 
   return (
     <Box sx={{ p: 4 }}>
-      <Typography variant="h4" component="h1" sx={{ color: 'primary.main', fontWeight: 600, mb: 4 }}>
-        Team Directory
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Typography variant="h4" component="h1" sx={{ color: 'primary.main', fontWeight: 600 }}>
+          Team Directory
+        </Typography>
+        <TeamMemberManagement
+          workspaceId={workspaceId}
+          onMemberAdded={fetchData}
+          onGroupCreated={fetchData}
+        />
+      </Box>
 
       {error && (
         <Alert severity="error" sx={{ mb: 3 }}>

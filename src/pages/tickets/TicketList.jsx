@@ -44,10 +44,13 @@ import {
   Typography,
   Card,
   Button,
+  Stack,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
+import FlashOnIcon from '@mui/icons-material/FlashOn';
 import TicketFilterButtons from '../../components/TicketFilterButtons';
+import QuickTicketModal from '../../components/QuickTicketModal';
 
 function TicketList() {
   const navigate = useNavigate();
@@ -56,6 +59,7 @@ function TicketList() {
   const [loading, setLoading] = useState(true);
   const [ticketFilter, setTicketFilter] = useState('all');
   const [showClosed, setShowClosed] = useState(false);
+  const [quickTicketOpen, setQuickTicketOpen] = useState(false);
   const [ticketCounts, setTicketCounts] = useState({
     you: 0,
     groups: 0,
@@ -256,39 +260,34 @@ function TicketList() {
   };
 
   return (
-    <Box>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        mb: 4 
-      }}>
-        <Typography 
-          variant="h4" 
-          component="h1" 
-          sx={{ 
-            color: 'primary.main',
-            fontWeight: 600
-          }}
-        >
+    <Box sx={{ p: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Typography variant="h4" component="h1" sx={{ color: 'primary.main', fontWeight: 600 }}>
           Tickets
         </Typography>
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Stack direction="row" spacing={2}>
+          <Button
+            variant="outlined"
+            startIcon={<FlashOnIcon />}
+            onClick={() => setQuickTicketOpen(true)}
+          >
+            Quick Ticket
+          </Button>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => navigate('create')}
-            sx={{
-              backgroundColor: 'primary.main',
-              '&:hover': {
-                backgroundColor: 'primary.dark',
-              }
-            }}
+            onClick={() => navigate(`/workspaces/${workspaceId}/tickets/create`)}
           >
             Create Ticket
           </Button>
-        </Box>
+        </Stack>
       </Box>
+
+      <QuickTicketModal
+        open={quickTicketOpen}
+        onClose={() => setQuickTicketOpen(false)}
+        workspaceId={workspaceId}
+      />
 
       <TicketFilterButtons
         currentFilter={ticketFilter}

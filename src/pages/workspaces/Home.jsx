@@ -1,8 +1,7 @@
 /**
- * WorkspaceHome Component
+ * Home Component
  * 
- * The main workspace interface that combines ticket management and team overview.
- * Provides a comprehensive dashboard for workspace activities and management.
+ * Main workspace home page that displays workspace overview and key metrics.
  * 
  * Features:
  * - Ticket Management:
@@ -118,7 +117,7 @@ import TicketFilterButtons from '../../components/TicketFilterButtons';
 import QuickTicketModal from '../../components/QuickTicketModal';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 
-function WorkspaceHome() {
+function Home() {
   const navigate = useNavigate();
   const { workspaceId } = useParams();
   const [tickets, setTickets] = useState([]);
@@ -844,4 +843,4 @@ function WorkspaceHome() {
   );
 }
 
-export default WorkspaceHome; 
+export default Home; 
