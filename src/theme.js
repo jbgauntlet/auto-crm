@@ -29,7 +29,7 @@
  *   - Reset margins and padding
  *   - Controlled viewport behavior
  *   - Base background color
- *   - Overflow handling
+ *   - Overflow handling ß
  */
 
 import { createTheme } from '@mui/material/styles';
