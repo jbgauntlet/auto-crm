@@ -144,27 +144,16 @@ function CreateTicket() {
         priority: prefill.priority || prev.priority,
         requestor_id: prefill.requestor_id || prev.requestor_id,
         group_id: prefill.group_id || prev.group_id,
+        type_id: prefill.type_id || prev.type_id,
+        topic_id: prefill.topic_id || prev.topic_id
       }));
 
       // Set tags if provided
       if (prefill.tags && Array.isArray(prefill.tags)) {
         setSelectedTags(prefill.tags.map(tag => ({ name: tag })));
       }
-
-      // Set type if provided and matches available options
-      if (prefill.category) {
-        const matchingType = typeOptions.find(type => 
-          type.name.toLowerCase() === prefill.category.toLowerCase()
-        );
-        if (matchingType) {
-          setFormData(prev => ({
-            ...prev,
-            type_id: matchingType.id
-          }));
-        }
-      }
     }
-  }, [location.state, typeOptions]);
+  }, [location.state]);
 
   // Set default requestor to current user
   useEffect(() => {

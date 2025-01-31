@@ -11,6 +11,7 @@ import {
 import { Chat as ChatIcon, Close as CloseIcon, Send as SendIcon } from '@mui/icons-material';
 import { supabase } from '../lib/supabaseClient';
 import OpenAI from 'openai';
+import { trackedChatCompletion, trackedEmbedding } from '../lib/langfuseClient';
 
 const calculateCosineSimilarity = (embedding1, embedding2) => {
   try {
@@ -77,15 +78,20 @@ function HelpBot() {
       setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
       setInput('');
 
-      // Generate embedding for the user's question
       const openai = new OpenAI({
         apiKey: import.meta.env.VITE_OPENAI_API_KEY,
         dangerouslyAllowBrowser: true
       });
 
-      const embeddingResponse = await openai.embeddings.create({
-        model: "text-embedding-3-small",
+      // Generate embedding for the user's question with Langfuse tracking
+      const embeddingResponse = await trackedEmbedding({
+        name: 'help_bot_question',
         input: userMessage,
+        openai,
+        metadata: {
+          messageCount: messages.length,
+          questionLength: userMessage.length
+        }
       });
 
       const questionEmbedding = embeddingResponse.data[0].embedding;
@@ -150,14 +156,14 @@ function HelpBot() {
       if (relevantEntries.length === 0 || !relevantEntries.some(entry => entry.text)) {
         setMessages(prev => [...prev, {
           role: 'assistant',
-          content: "I apologize, but I don't have any properly formatted information in my knowledge base yet. Please make sure the knowledge base entries contain both embeddings and text content."
+          content: "I apologize, but I can't help you with that. Is there anything else I can help you with?"
         }]);
         return;
       }
 
-      // Format relevant knowledge base entries with more detail
+      // Format the context and create the prompt
       const contextEntries = relevantEntries
-        .filter(entry => entry.text) // Only use entries that have text content
+        .filter(entry => entry.text)
         .map(entry => `Topic: ${entry.topic || 'N/A'}
 Subtopic: ${entry.subtopic || 'N/A'}
 Content: ${entry.text || 'No content available'}
@@ -165,13 +171,13 @@ Relevance Score: ${entry.similarity.toFixed(4)}
 ---`)
         .join('\n\n');
 
-      // Get recent chat history (last 6 messages)
+      // Get recent chat history
       const recentMessages = messages.slice(-6);
       const chatHistory = recentMessages
         .map(msg => `${msg.role}: ${msg.content}`)
         .join('\n');
 
-      // Create the prompt for GPT
+      // Create the system prompt
       const systemPrompt = `You are a helpful assistant for a CRM application. Your role is to help users understand the app's features and functionality.
 
 Rules:
@@ -194,15 +200,21 @@ CURRENT QUESTION: "${userMessage}"
 
 Please provide a direct answer to the current question, primarily using the knowledge base entries provided above but feel free to make reasonable inferences when needed. If none of the knowledge base entries are relevant to this specific question, say so clearly.`;
 
-      // Get response from GPT
-      const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+      // Get response from GPT with Langfuse tracking
+      const completion = await trackedChatCompletion({
+        name: 'help_bot_response',
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userMessage }
         ],
-        temperature: 0.3, // Lower temperature for more focused responses
-        max_tokens: 500
+        temperature: 0.3,
+        openai,
+        metadata: {
+          relevantEntriesCount: relevantEntries.length,
+          contextLength: contextEntries.length,
+          chatHistoryLength: recentMessages.length,
+          hasRelevantContext: relevantEntries.length > 0
+        }
       });
 
       const response = completion.choices[0].message.content;

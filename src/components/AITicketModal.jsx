@@ -19,6 +19,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import OpenAI from 'openai';
+import { trackedChatCompletion } from '../lib/langfuseClient';
 import {
   Dialog,
   DialogTitle,
@@ -43,6 +44,7 @@ function AITicketModal({ open, onClose, workspaceId }) {
     priority: 'normal',
     status: 'open',
   });
+  const [error, setError] = useState(null);
 
   const generateTicketFields = async () => {
     if (!prompt.trim()) return;
@@ -74,13 +76,19 @@ Guidelines:
    - low: minor improvements, non-urgent requests
 4. Provide a brief analysis of your choices`;
 
-      const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+      // Get response from GPT with Langfuse tracking
+      const completion = await trackedChatCompletion({
+        name: 'ticket_generation',
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: prompt }
         ],
         temperature: 0.7,
+        openai,
+        metadata: {
+          promptLength: prompt.length,
+          workspaceId
+        }
       });
 
       const response = completion.choices[0].message.content;
@@ -96,7 +104,7 @@ Guidelines:
 
     } catch (err) {
       console.error('Error generating ticket fields:', err);
-      // Keep the generated fields if there's a parsing error
+      setError('Failed to generate ticket fields. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -19,6 +19,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import OpenAI from 'openai';
 import { supabase } from '../lib/supabaseClient';
+import { trackedChatCompletion } from '../lib/langfuseClient';
 import {
   Dialog,
   DialogTitle,
@@ -38,6 +39,8 @@ function AIEnhancedTicketModal({ open, onClose, workspaceId }) {
   const [error, setError] = useState(null);
   const [groups, setGroups] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [topicOptions, setTopicOptions] = useState([]);
+  const [typeOptions, setTypeOptions] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,6 +57,25 @@ function AIEnhancedTicketModal({ open, onClose, workspaceId }) {
 
         if (groupsError) throw groupsError;
         setGroups(groupsData);
+
+        // Fetch topic options
+        const { data: topicOptionsData, error: topicOptionsError } = await supabase
+          .from('ticket_topic_options')
+          .select('*')
+          .eq('workspace_id', workspaceId);
+
+        if (topicOptionsError) throw topicOptionsError;
+        setTopicOptions(topicOptionsData);
+
+        // Fetch type options
+        const { data: typeOptionsData, error: typeOptionsError } = await supabase
+          .from('ticket_type_options')
+          .select('*')
+          .eq('workspace_id', workspaceId);
+
+        if (typeOptionsError) throw typeOptionsError;
+        setTypeOptions(typeOptionsData);
+
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('Failed to load workspace data.');
@@ -83,9 +105,10 @@ Your response should be in JSON format with the following fields:
   "subject": "A clear, concise ticket subject",
   "description": "Detailed description of the issue or request",
   "priority": "low" | "normal" | "high" | "urgent" (choose based on urgency/impact),
-  "category": "bug" | "feature_request" | "question" | "other" (if you can determine it),
+  "type_id": "type_name" | null (suggest one of these types if appropriate: ${typeOptions?.map((t, i) => `[${i}] ${t.name}`).join(', ')}),
   "tags": ["relevant", "tags", "based", "on", "content"] (up to 5 tags),
-  "suggested_group": "group_name" | null (suggest one of these groups if appropriate: ${groups.map(g => g.name).join(', ')})
+  "suggested_group": "group_name" | null (suggest one of these groups if appropriate: ${groups.map((g, i) => `[${i}] ${g.name}`).join(', ')}),
+  "topic_id": "topic_name" | null (suggest one of these topics if appropriate: ${topicOptions?.map((t, i) => `[${i}] ${t.name}`).join(', ')})
 }
 
 Guidelines:
@@ -101,15 +124,35 @@ Guidelines:
 6. For suggested_group:
    - Analyze the ticket content and suggest the most appropriate group
    - Return null if no group seems clearly appropriate
-   - Only suggest from the provided list of groups`;
+   - Only suggest from the provided list of groups
+   - Use the exact name as shown in the list
+7. For topic_id:
+   - Analyze the ticket content and suggest the most appropriate topic
+   - Return null if no topic seems clearly appropriate
+   - Only suggest from the provided list of topics
+   - Use the exact name as shown in the list
+8. For type_id:
+   - Analyze the ticket content and suggest the most appropriate type
+   - Return null if no type seems clearly appropriate
+   - Only suggest from the provided list of types
+   - Use the exact name as shown in the list`;
 
-      const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+      // Get response from GPT with Langfuse tracking
+      const completion = await trackedChatCompletion({
+        name: 'enhanced_ticket_generation',
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: prompt }
         ],
         temperature: 0.7,
+        openai,
+        metadata: {
+          availableGroups: groups.map(g => g.name),
+          availableTopics: topicOptions?.map(t => t.name),
+          availableTypes: typeOptions?.map(t => t.name),
+          promptLength: prompt.length,
+          userId: currentUser?.id
+        }
       });
 
       const response = completion.choices[0].message.content;
@@ -118,20 +161,57 @@ Guidelines:
       // Find the group ID if a group was suggested
       let suggestedGroupId = null;
       if (fields.suggested_group) {
-        const group = groups.find(g => g.name.toLowerCase() === fields.suggested_group.toLowerCase());
+        const group = groups.find(g => g.name === fields.suggested_group);
         if (group) {
           suggestedGroupId = group.id;
         }
       }
+
+      // Find the topic ID if a topic was suggested
+      let suggestedTopicId = null;
+      if (fields.topic_id) {
+        const topic = topicOptions?.find(t => t.name === fields.topic_id);
+        if (topic) {
+          suggestedTopicId = topic.id;
+        }
+      }
+
+      // Find the type ID if a type was suggested
+      let suggestedTypeId = null;
+      if (fields.type_id) {
+        const type = typeOptions?.find(t => t.name === fields.type_id);
+        if (type) {
+          suggestedTypeId = type.id;
+        }
+      }
+
+      // Add debug logging
+      console.log('Suggested values:', {
+        topic: fields.topic_id,
+        type: fields.type_id,
+        group: fields.suggested_group
+      });
+      console.log('Found IDs:', {
+        topicId: suggestedTopicId,
+        typeId: suggestedTypeId,
+        groupId: suggestedGroupId
+      });
+      console.log('Available options:', {
+        topics: topicOptions,
+        types: typeOptions,
+        groups: groups
+      });
 
       // Navigate to create ticket page with pre-filled values
       navigate(`/workspaces/${workspaceId}/tickets/create`, {
         state: {
           prefill: {
             ...fields,
-            requestor_id: currentUser?.id, // Preset the requestor to current user
-            group_id: suggestedGroupId, // Include the suggested group ID
-            ai_enhanced: true // Flag to indicate this was AI enhanced
+            requestor_id: currentUser?.id,
+            group_id: suggestedGroupId,
+            topic_id: suggestedTopicId,
+            type_id: suggestedTypeId,
+            ai_enhanced: true
           }
         }
       });

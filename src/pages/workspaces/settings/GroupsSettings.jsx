@@ -18,7 +18,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../../../lib/supabaseClient';
-import OpenAI from 'openai';
 import {
   Box,
   Typography,
@@ -26,73 +25,79 @@ import {
   CardContent,
   Button,
   Alert,
-  CircularProgress,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
+import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
+} from '@mui/icons-material';
+import CreateGroupModal from '../../../components/CreateGroupModal';
 
 function GroupsSettings() {
   const { workspaceId } = useParams();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [processing, setProcessing] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [groups, setGroups] = useState([]);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [groupToDelete, setGroupToDelete] = useState(null);
 
-  const generateEmbeddings = async () => {
+  const fetchGroups = async () => {
     try {
-      setProcessing(true);
+      setLoading(true);
       setError(null);
-      setProgress(0);
 
-      // Initialize OpenAI client
-      const openai = new OpenAI({
-        apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-        dangerouslyAllowBrowser: true  // Only for this temporary one-time operation
-      });
+      const { data: groupsData, error: groupsError } = await supabase
+        .from('groups')
+        .select('*')
+        .eq('workspace_id', workspaceId)
+        .order('name');
 
-      // Fetch all knowledge base entries
-      const { data: entries, error: fetchError } = await supabase
-        .from('knowledge_base')
-        .select('*');
-
-      if (fetchError) throw fetchError;
-
-      // Process each entry
-      for (let i = 0; i < entries.length; i++) {
-        const entry = entries[i];
-        const combinedText = `${entry.topic || ''}\n${entry.subtopic || ''}\n${entry.text || ''}`.trim();
-        
-        // Log the first entry's format
-        if (i === 0) {
-          console.log('Example of combined text format:');
-          console.log('---START OF TEXT---');
-          console.log(combinedText);
-          console.log('---END OF TEXT---');
-        }
-        
-        // Generate embedding
-        const embeddingResponse = await openai.embeddings.create({
-          model: "text-embedding-3-small",
-          input: combinedText,
-        });
-
-        // Update the entry with the new embedding
-        const { error: updateError } = await supabase
-          .from('knowledge_base')
-          .update({ embedding: embeddingResponse.data[0].embedding })
-          .eq('id', entry.id);
-
-        if (updateError) throw updateError;
-
-        // Update progress
-        setProgress(Math.round(((i + 1) / entries.length) * 100));
-      }
-
-      alert('Successfully generated and updated all embeddings!');
+      if (groupsError) throw groupsError;
+      setGroups(groupsData);
     } catch (err) {
-      console.error('Error generating embeddings:', err);
+      console.error('Error fetching groups:', err);
       setError(err.message);
     } finally {
-      setProcessing(false);
-      setProgress(0);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGroups();
+  }, [workspaceId]);
+
+  const handleDeleteClick = (group) => {
+    setGroupToDelete(group);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      const { error: deleteError } = await supabase
+        .from('groups')
+        .delete()
+        .eq('id', groupToDelete.id);
+
+      if (deleteError) throw deleteError;
+
+      setDeleteDialogOpen(false);
+      setGroupToDelete(null);
+      fetchGroups();
+    } catch (err) {
+      console.error('Error deleting group:', err);
+      setError(err.message);
     }
   };
 
@@ -107,7 +112,7 @@ function GroupsSettings() {
   return (
     <Box>
       <Typography variant="h4" component="h1" sx={{ color: 'primary.main', fontWeight: 600, mb: 4 }}>
-        Groups Settings
+        Groups
       </Typography>
 
       {error && (
@@ -116,38 +121,85 @@ function GroupsSettings() {
         </Alert>
       )}
 
-      <Card sx={{ mb: 4 }}>
+      <Card>
         <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Knowledge Base Embeddings Generator
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Generate embeddings for all knowledge base entries using OpenAI's text-embedding-3-small model.
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Button
-              variant="contained"
-              onClick={generateEmbeddings}
-              disabled={processing}
-            >
-              {processing ? 'Processing...' : 'Generate Embeddings'}
-            </Button>
-            {processing && (
-              <>
-                <CircularProgress size={24} />
-                <Typography variant="body2">{progress}% Complete</Typography>
-              </>
-            )}
+          <Box sx={{ maxWidth: 800 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setCreateModalOpen(true)}
+              >
+                Create Group
+              </Button>
+            </Box>
+
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Group Name</TableCell>
+                    <TableCell align="right">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {groups.map((group) => (
+                    <TableRow key={group.id}>
+                      <TableCell>{group.name}</TableCell>
+                      <TableCell align="right">
+                        <IconButton
+                          onClick={() => handleDeleteClick(group)}
+                          sx={{ color: 'error.main' }}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {groups.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={2} align="center">
+                        <Typography variant="body2" sx={{ py: 2 }}>
+                          No groups found. Create your first group above.
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </Box>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardContent>
-          {/* TODO: Implement groups management interface */}
-          <Typography>Groups management interface coming soon...</Typography>
-        </CardContent>
-      </Card>
+      {/* Create Group Modal */}
+      <CreateGroupModal
+        open={createModalOpen}
+        onClose={() => {
+          setCreateModalOpen(false);
+          fetchGroups();
+        }}
+        workspaceId={workspaceId}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle>Delete Group</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete the group "{groupToDelete?.name}"? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
