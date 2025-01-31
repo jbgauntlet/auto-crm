@@ -18,6 +18,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../../../lib/supabaseClient';
+import OpenAI from 'openai';
 import {
   Box,
   Typography,
@@ -25,29 +26,75 @@ import {
   CardContent,
   Button,
   Alert,
+  CircularProgress,
 } from '@mui/material';
 
 function GroupsSettings() {
   const { workspaceId } = useParams();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [processing, setProcessing] = useState(false);
+  const [progress, setProgress] = useState(0);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        // TODO: Implement group data fetching
-      } catch (err) {
-        console.error('Error fetching groups:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
+  const generateEmbeddings = async () => {
+    try {
+      setProcessing(true);
+      setError(null);
+      setProgress(0);
+
+      // Initialize OpenAI client
+      const openai = new OpenAI({
+        apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+        dangerouslyAllowBrowser: true  // Only for this temporary one-time operation
+      });
+
+      // Fetch all knowledge base entries
+      const { data: entries, error: fetchError } = await supabase
+        .from('knowledge_base')
+        .select('*');
+
+      if (fetchError) throw fetchError;
+
+      // Process each entry
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+        const combinedText = `${entry.topic || ''}\n${entry.subtopic || ''}\n${entry.text || ''}`.trim();
+        
+        // Log the first entry's format
+        if (i === 0) {
+          console.log('Example of combined text format:');
+          console.log('---START OF TEXT---');
+          console.log(combinedText);
+          console.log('---END OF TEXT---');
+        }
+        
+        // Generate embedding
+        const embeddingResponse = await openai.embeddings.create({
+          model: "text-embedding-3-small",
+          input: combinedText,
+        });
+
+        // Update the entry with the new embedding
+        const { error: updateError } = await supabase
+          .from('knowledge_base')
+          .update({ embedding: embeddingResponse.data[0].embedding })
+          .eq('id', entry.id);
+
+        if (updateError) throw updateError;
+
+        // Update progress
+        setProgress(Math.round(((i + 1) / entries.length) * 100));
       }
-    };
 
-    fetchData();
-  }, [workspaceId]);
+      alert('Successfully generated and updated all embeddings!');
+    } catch (err) {
+      console.error('Error generating embeddings:', err);
+      setError(err.message);
+    } finally {
+      setProcessing(false);
+      setProgress(0);
+    }
+  };
 
   if (loading) {
     return (
@@ -68,6 +115,32 @@ function GroupsSettings() {
           {error}
         </Alert>
       )}
+
+      <Card sx={{ mb: 4 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Knowledge Base Embeddings Generator
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Generate embeddings for all knowledge base entries using OpenAI's text-embedding-3-small model.
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Button
+              variant="contained"
+              onClick={generateEmbeddings}
+              disabled={processing}
+            >
+              {processing ? 'Processing...' : 'Generate Embeddings'}
+            </Button>
+            {processing && (
+              <>
+                <CircularProgress size={24} />
+                <Typography variant="body2">{progress}% Complete</Typography>
+              </>
+            )}
+          </Box>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent>

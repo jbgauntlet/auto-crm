@@ -37,6 +37,7 @@ import MacroList from './pages/macros/MacroList';
 import CreateMacro from './pages/macros/CreateMacro';
 import EditMacro from './pages/macros/EditMacro';
 import { ThemeProvider as CustomThemeProvider } from './theme/ThemeContext';
+import HelpBot from './components/HelpBot';
 
 /**
  * App Component
@@ -237,6 +238,7 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Router>
+          {session && <HelpBot />}
         </Box>
       </CustomThemeProvider>
     </ThemeProvider>
