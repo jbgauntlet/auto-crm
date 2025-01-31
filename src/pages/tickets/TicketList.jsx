@@ -45,12 +45,17 @@ import {
   Card,
   Button,
   Stack,
+  Tooltip,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import TicketFilterButtons from '../../components/TicketFilterButtons';
 import QuickTicketModal from '../../components/QuickTicketModal';
+import AITicketModal from '../../components/AITicketModal';
+import AIEnhancedTicketModal from '../../components/AIEnhancedTicketModal';
 
 function TicketList() {
   const navigate = useNavigate();
@@ -60,6 +65,8 @@ function TicketList() {
   const [ticketFilter, setTicketFilter] = useState('all');
   const [showClosed, setShowClosed] = useState(false);
   const [quickTicketOpen, setQuickTicketOpen] = useState(false);
+  const [aiTicketOpen, setAiTicketOpen] = useState(false);
+  const [aiEnhancedOpen, setAiEnhancedOpen] = useState(false);
   const [ticketCounts, setTicketCounts] = useState({
     you: 0,
     groups: 0,
@@ -260,28 +267,81 @@ function TicketList() {
   };
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" component="h1" sx={{ color: 'primary.main', fontWeight: 600 }}>
-          Tickets
-        </Typography>
-        <Stack direction="row" spacing={2}>
-          <Button
-            variant="outlined"
-            startIcon={<FlashOnIcon />}
-            onClick={() => setQuickTicketOpen(true)}
-          >
-            Quick Ticket
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => navigate(`/workspaces/${workspaceId}/tickets/create`)}
-          >
-            Create Ticket
-          </Button>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ mb: 3 }}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
+          <Typography variant="h4" component="h1" sx={{ color: 'primary.main', fontWeight: 600 }}>
+            Tickets
+          </Typography>
+          <Stack direction="row" spacing={1}>
+            <Tooltip title="Create Ticket">
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => navigate(`/workspaces/${workspaceId}/tickets/create`)}
+              >
+                Create Ticket
+              </Button>
+            </Tooltip>
+            <Tooltip title="Quick Ticket">
+              <Button
+                variant="contained"
+                color="secondary"
+                startIcon={<FlashOnIcon />}
+                onClick={() => setQuickTicketOpen(true)}
+              >
+                Quick Ticket
+              </Button>
+            </Tooltip>
+            <Tooltip title="AI Ticket">
+              <Button
+                variant="contained"
+                color="info"
+                startIcon={<SmartToyIcon />}
+                onClick={() => setAiTicketOpen(true)}
+              >
+                AI Ticket
+              </Button>
+            </Tooltip>
+            <Tooltip title="AI Enhanced Ticket (Beta)">
+              <Button
+                variant="contained"
+                color="warning"
+                startIcon={<AutoFixHighIcon />}
+                onClick={() => setAiEnhancedOpen(true)}
+              >
+                AI Enhanced
+              </Button>
+            </Tooltip>
+          </Stack>
         </Stack>
+
+        <TicketFilterButtons
+          currentFilter={ticketFilter}
+          onFilterChange={setTicketFilter}
+          showClosed={showClosed}
+          onShowClosedChange={setShowClosed}
+          counts={ticketCounts}
+        />
       </Box>
+
+      <Card sx={{ flexGrow: 1 }}>
+        <DataGrid
+          rows={tickets}
+          columns={columns}
+          pageSize={25}
+          rowsPerPageOptions={[25]}
+          disableSelectionOnClick
+          loading={loading}
+          onRowClick={(params) => navigate(`/workspaces/${workspaceId}/tickets/${params.id}`)}
+          sx={{
+            border: 'none',
+            '& .MuiDataGrid-row': {
+              cursor: 'pointer',
+            },
+          }}
+        />
+      </Card>
 
       <QuickTicketModal
         open={quickTicketOpen}
@@ -289,46 +349,17 @@ function TicketList() {
         workspaceId={workspaceId}
       />
 
-      <TicketFilterButtons
-        currentFilter={ticketFilter}
-        onFilterChange={setTicketFilter}
-        showClosed={showClosed}
-        onShowClosedChange={setShowClosed}
-        counts={ticketCounts}
+      <AITicketModal
+        open={aiTicketOpen}
+        onClose={() => setAiTicketOpen(false)}
+        workspaceId={workspaceId}
       />
 
-      <Card sx={{ mb: 4 }}>
-        <DataGrid
-          rows={tickets}
-          columns={columns}
-          pageSize={10}
-          rowsPerPageOptions={[10, 25, 50]}
-          checkboxSelection
-          disableSelectionOnClick
-          loading={loading}
-          onRowClick={(params) => navigate(`${params.row.id}`)}
-          autoHeight
-          sx={{
-            '& .MuiDataGrid-row': {
-              cursor: 'pointer',
-              '&:hover': {
-                backgroundColor: 'primary.light',
-              },
-            },
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: 'primary.light',
-              color: 'primary.main',
-            },
-            '& .MuiDataGrid-cell': {
-              borderColor: 'custom.lightGray',
-            },
-            '& .MuiDataGrid-footerContainer': {
-              borderTop: 'none',
-              backgroundColor: 'background.paper',
-            },
-          }}
-        />
-      </Card>
+      <AIEnhancedTicketModal
+        open={aiEnhancedOpen}
+        onClose={() => setAiEnhancedOpen(false)}
+        workspaceId={workspaceId}
+      />
     </Box>
   );
 }

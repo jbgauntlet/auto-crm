@@ -52,7 +52,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import {
   Box,
@@ -81,6 +81,7 @@ import {
 import {
   Add as AddIcon,
   Check as CheckIcon,
+  SmartToy as SmartToyIcon,
 } from '@mui/icons-material';
 import debounce from 'lodash/debounce';
 
@@ -101,6 +102,7 @@ const STATUS_OPTIONS = [
 
 function CreateTicket() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [workspaceUsers, setWorkspaceUsers] = useState([]);
@@ -130,6 +132,58 @@ function CreateTicket() {
     topic_id: '',
     custom_fields: {},
   });
+
+  // Handle AI pre-filled values
+  useEffect(() => {
+    const prefill = location.state?.prefill;
+    if (prefill) {
+      setFormData(prev => ({
+        ...prev,
+        subject: prefill.subject || prev.subject,
+        description: prefill.description || prev.description,
+        priority: prefill.priority || prev.priority,
+        requestor_id: prefill.requestor_id || prev.requestor_id,
+        group_id: prefill.group_id || prev.group_id,
+      }));
+
+      // Set tags if provided
+      if (prefill.tags && Array.isArray(prefill.tags)) {
+        setSelectedTags(prefill.tags.map(tag => ({ name: tag })));
+      }
+
+      // Set type if provided and matches available options
+      if (prefill.category) {
+        const matchingType = typeOptions.find(type => 
+          type.name.toLowerCase() === prefill.category.toLowerCase()
+        );
+        if (matchingType) {
+          setFormData(prev => ({
+            ...prev,
+            type_id: matchingType.id
+          }));
+        }
+      }
+    }
+  }, [location.state, typeOptions]);
+
+  // Set default requestor to current user
+  useEffect(() => {
+    const setDefaultRequestor = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user && !formData.requestor_id) {
+          setFormData(prev => ({
+            ...prev,
+            requestor_id: user.id
+          }));
+        }
+      } catch (error) {
+        console.error('Error setting default requestor:', error);
+      }
+    };
+
+    setDefaultRequestor();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -575,9 +629,18 @@ function CreateTicket() {
           alignItems: 'center',
           mb: 3 
         }}>
-          <Typography variant="h4" component="h1">
+          <Typography variant="h4" component="h1" sx={{ color: 'primary.main', fontWeight: 600 }}>
             Create Ticket
           </Typography>
+          {location.state?.prefill?.ai_enhanced && (
+            <Chip
+              icon={<SmartToyIcon />}
+              label="AI Enhanced"
+              color="warning"
+              variant="outlined"
+              size="small"
+            />
+          )}
           <Button
             variant="outlined"
             startIcon={<AddIcon />}

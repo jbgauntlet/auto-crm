@@ -263,53 +263,47 @@ function WorkspaceSidebar() {
           <List sx={{ py: 0 }}>
             {menuItems.map((item) => (
               <ListItem key={item.label} disablePadding>
-                {expanded ? (
+                <Tooltip title={item.label} placement="right">
                   <ListItemButton
                     onClick={() => navigate(item.path)}
                     selected={isCurrentPath(item.path)}
                     sx={{
-                      py: 1.5,
+                      minHeight: 48,
+                      justifyContent: expanded ? 'initial' : 'center',
+                      px: 2.5,
                       '&.Mui-selected': {
-                        backgroundColor: 'primary.dark',
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
                         '&:hover': {
-                          backgroundColor: 'primary.dark',
+                          backgroundColor: 'rgba(255, 255, 255, 0.2)',
                         },
                       },
                       '&:hover': {
-                        backgroundColor: 'primary.dark',
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
                       },
+                      display: 'flex',
+                      alignItems: 'center',
                     }}
                   >
-                    <ListItemIcon sx={{ color: 'primary.contrastText', minWidth: 48 }}>
-                      {item.icon}
-                    </ListItemIcon>
-                    <ListItemText primary={item.label} />
-                  </ListItemButton>
-                ) : (
-                  <Tooltip title={item.label} placement="right">
-                    <ListItemButton
-                      onClick={() => navigate(item.path)}
-                      selected={isCurrentPath(item.path)}
+                    <ListItemIcon
                       sx={{
-                        py: 1.5,
+                        minWidth: 0,
+                        mr: expanded ? 3 : 'auto',
                         justifyContent: 'center',
-                        '&.Mui-selected': {
-                          backgroundColor: 'primary.dark',
-                          '&:hover': {
-                            backgroundColor: 'primary.dark',
-                          },
-                        },
-                        '&:hover': {
-                          backgroundColor: 'primary.dark',
-                        },
+                        color: 'primary.contrastText',
                       }}
                     >
-                      <ListItemIcon sx={{ color: 'primary.contrastText', minWidth: 'auto' }}>
-                        {item.icon}
-                      </ListItemIcon>
-                    </ListItemButton>
-                  </Tooltip>
-                )}
+                      {item.icon}
+                    </ListItemIcon>
+                    {expanded && (
+                      <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                        <ListItemText 
+                          primary={item.label}
+                          sx={{ color: 'primary.contrastText' }}
+                        />
+                      </Box>
+                    )}
+                  </ListItemButton>
+                </Tooltip>
               </ListItem>
             ))}
           </List>
